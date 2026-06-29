@@ -56,8 +56,11 @@ export function StorefrontPreview({ rc }: { rc: RateCard }) {
     ? priceHours(frequency, hoursPerDay, wage, minimum)
     : priceProduction(selectedCat, frequency, sqft, density, wage, minimum)
 
+  // Show a single figure only when the low and high genuinely coincide (fully
+  // floored or hours-based). When the minimum lifts just the low end, keep the
+  // real range so this matches the editor's quote exactly.
   const monthlyText =
-    pricing.minApplied || pricing.monthlyLow === pricing.monthlyHigh
+    pricing.monthlyLow === pricing.monthlyHigh
       ? `$${pricing.monthlyLow.toLocaleString()}`
       : `$${rangeStr(pricing.monthlyLow, pricing.monthlyHigh)}`
 

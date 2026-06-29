@@ -90,7 +90,7 @@ export const DEFAULT_MIN: Record<string, number> = {
   "7x-week": 0,
 }
 export const DEFAULT_WAGE = 25
-export const PREV_FREQS = ["1x-month", "2x-month", "1x-week", "3x-week", "5x-week"]
+export const PREV_FREQS = ["1x-week", "3x-week", "5x-week", "1x-month", "2x-month"]
 export const STORE_KEY = "anago-pricing-setup-v1"
 
 // Square-footage bounds for the storefront slider.

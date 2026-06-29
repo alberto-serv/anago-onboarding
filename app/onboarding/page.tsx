@@ -33,8 +33,8 @@ import {
   X,
   ArrowUpRight,
   ExternalLink,
-  Sparkles,
 } from "lucide-react"
+import { PricingSetup } from "./pricing-setup"
 
 // Half-hour time options (00:00 → 23:30) shown in the business-hours selects.
 // Values stay in 24h "HH:MM" form to match the stored schedule; labels render
@@ -226,6 +226,13 @@ export default function OnboardingPage() {
     <main className="min-h-screen bg-background">
       <ServHeader currentStep={step} totalSteps={totalSteps} />
 
+      {/* Step 2 (Review Website) renders the Anago-branded Pricing Setup full-width;
+          it carries its own design system, scoped so it doesn't touch the rest of the app. */}
+      {currentContent === "review-website" ? (
+        <div className="pt-16">
+          <PricingSetup onContinue={handleNext} onBack={handlePrevious} />
+        </div>
+      ) : (
       <div className="max-w-4xl mx-auto px-6 pb-16 pt-28 sm:pt-32">
         {/* ═══════════════════════════════════════════════════════ */}
         {/* Step 1: Confirm Identity */}
@@ -367,38 +374,6 @@ export default function OnboardingPage() {
               </a>
             </p>
 
-            <NeedHelpLink />
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════════════ */}
-        {/* Step 2: Review Your Website (Anago preview — designs TBD) */}
-        {/* ═══════════════════════════════════════════════════════ */}
-        {currentContent === "review-website" && (
-          <div className="space-y-10" style={{ animation: "fade-up 0.4s ease-out" }}>
-            <div className="space-y-3">
-              <h1 className="text-[clamp(2rem,4vw,3.25rem)] font-bold">Review Your Website</h1>
-              <p className="text-lg text-muted-foreground max-w-xl">
-                Preview the booking page customers will see and fine-tune your services and pricing.
-              </p>
-            </div>
-
-            {/* Placeholder — replaced by the Anago-branded preview once designs land. */}
-            <div className="bg-card border border-dashed border-border rounded-2xl p-10 sm:p-14 shadow-sm">
-              <div className="flex flex-col items-center text-center gap-4 max-w-md mx-auto">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-                  <Sparkles className="h-6 w-6 text-muted-foreground" />
-                </div>
-                <h2 className="text-xl font-bold">Preview coming soon</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  The Anago-branded storefront preview and service editor will live here. Designs are on the
-                  way — this step is a placeholder for now so the flow stays intact.
-                </p>
-              </div>
-            </div>
-
-            <PrimaryButton onClick={handleNext}>Continue</PrimaryButton>
-            <BackButton />
             <NeedHelpLink />
           </div>
         )}
@@ -827,6 +802,7 @@ export default function OnboardingPage() {
           </div>
         )}
       </div>
+      )}
     </main>
   )
 }

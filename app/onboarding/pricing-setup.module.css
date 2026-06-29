@@ -784,12 +784,6 @@
   border: 1px solid rgba(247, 161, 29, 0.45);
   flex: 0 0 12px;
 }
-@media (max-width: 560px) {
-  .ptab th:nth-child(2),
-  .ptab td:nth-child(2) {
-    display: none;
-  }
-}
 
 /* ---- toolbar row of host-app actions sits below the stack ---- */
 .actions {

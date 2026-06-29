@@ -13,7 +13,6 @@ import {
   type RateCard,
   type Win,
   fmtWage,
-  money,
   num,
   priceHours,
   priceProduction,
@@ -330,8 +329,6 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                             <tr>
                               <th>Frequency</th>
                               <th>Per visit</th>
-                              <th>Labor / mo</th>
-                              <th>Your min</th>
                               <th>Billed / mo</th>
                             </tr>
                           </thead>
@@ -348,10 +345,6 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                                   <td>
                                     <span className={styles.pv}>${rangeStr(p.perVisitLow, p.perVisitHigh)}</span>
                                   </td>
-                                  <td>
-                                    <span className={styles.raw}>${rangeStr(p.rawMonthlyLow, p.rawMonthlyHigh)}</span>
-                                  </td>
-                                  <td>{p.minimum ? `$${money(p.minimum)}` : <span className={styles.dash}>—</span>}</td>
                                   <td>
                                     <span className={styles.bill}>${rangeStr(p.monthlyLow, p.monthlyHigh)}</span>
                                     {p.floored && <span className={styles.flag}>min</span>}

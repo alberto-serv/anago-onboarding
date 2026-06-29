@@ -17,6 +17,7 @@ import {
   num,
   priceHours,
   priceProduction,
+  rangeStr,
 } from "./rate-card"
 
 const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(" ")
@@ -345,14 +346,14 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                                 <tr key={fid} className={cx(p.floored && styles.floored)}>
                                   <td>{FREQ_BY[fid].label}</td>
                                   <td>
-                                    <span className={styles.pv}>${money(p.perVisit)}</span>
+                                    <span className={styles.pv}>${rangeStr(p.perVisitLow, p.perVisitHigh)}</span>
                                   </td>
                                   <td>
-                                    <span className={styles.raw}>${money(p.rawMonthly)}</span>
+                                    <span className={styles.raw}>${rangeStr(p.rawMonthlyLow, p.rawMonthlyHigh)}</span>
                                   </td>
                                   <td>{p.minimum ? `$${money(p.minimum)}` : <span className={styles.dash}>—</span>}</td>
                                   <td>
-                                    <span className={styles.bill}>${money(p.monthly)}</span>
+                                    <span className={styles.bill}>${rangeStr(p.monthlyLow, p.monthlyHigh)}</span>
                                     {p.floored && <span className={styles.flag}>min</span>}
                                   </td>
                                 </tr>

@@ -189,6 +189,8 @@ export const num = (s: string) => (s === "" ? 0 : Math.max(0, parseFloat(s) || 0
 export interface PriceResult {
   perVisit: number
   rawMonthly: number
+  rawMonthlyLow: number
+  rawMonthlyHigh: number
   minimum: number
   monthly: number
   perVisitLow: number
@@ -219,6 +221,8 @@ export function priceProduction(
   return {
     perVisit: Math.round(perVisitPoint),
     rawMonthly: Math.round(rawPoint),
+    rawMonthlyLow: Math.round(rawLow),
+    rawMonthlyHigh: Math.round(rawHigh),
     minimum,
     monthly: Math.round(Math.max(minimum, rawPoint)),
     perVisitLow: Math.round(perVisitLow),
@@ -239,6 +243,8 @@ export function priceHours(freqId: string, hoursPerDay: number, wage: number, mi
   return {
     perVisit,
     rawMonthly: Math.round(rawMonthly),
+    rawMonthlyLow: Math.round(rawMonthly),
+    rawMonthlyHigh: Math.round(rawMonthly),
     minimum,
     monthly,
     perVisitLow: perVisit,

@@ -649,8 +649,42 @@
   color: var(--navy);
 }
 .prev[data-win="business"] .segPills[data-role="density"],
-.prev[data-win="business"] select[data-role="sqft"] {
+.prev[data-win="business"] [data-role="sqft"] {
   display: none;
+}
+.sqftField {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 9px;
+  padding: 0 8px 0 10px;
+  transition:
+    border 0.15s,
+    box-shadow 0.15s;
+}
+.sqftField:focus-within {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(247, 161, 29, 0.14);
+}
+.sqftField input {
+  border: none;
+  outline: none;
+  background: none;
+  font-family: var(--text);
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--navy);
+  width: 54px;
+  padding: 7px 0;
+  text-align: left;
+}
+.sqftField .sqftSuffix {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  padding-left: 4px;
+  white-space: nowrap;
 }
 .prev[data-win="after"] select[data-role="hours"] {
   display: none;
@@ -769,9 +803,9 @@
 .previewBarIn {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
-  padding: 12px 0;
+  padding: 18px 0 6px;
   flex-wrap: wrap;
 }
 .modeTabs,

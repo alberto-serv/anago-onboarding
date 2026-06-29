@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Monitor, Smartphone, Eye, SlidersHorizontal, HelpCircle } from "lucide-react"
+import { Monitor, Smartphone, Pencil, Check, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import styles from "./pricing-setup.module.css"
 import { useRateCard } from "./rate-card"
@@ -39,95 +39,94 @@ export function PreviewSection({ onContinue, onBack }: PreviewSectionProps) {
         rel="stylesheet"
       />
 
-      {/* control bar: Preview / Edit + device toggle */}
-      <div className={styles.previewBar}>
-        <div className={styles.wrap}>
-          <div className={styles.previewBarIn}>
-            <div className={styles.modeTabs}>
-              <button
-                type="button"
-                className={cx(styles.modeTab, mode === "preview" && styles.on)}
-                onClick={() => setMode("preview")}
-              >
-                <Eye strokeWidth={2} />
-                Preview
-              </button>
-              <button
-                type="button"
-                className={cx(styles.modeTab, mode === "edit" && styles.on)}
-                onClick={() => setMode("edit")}
-              >
-                <SlidersHorizontal strokeWidth={2} />
-                Edit pricing
-              </button>
-            </div>
-
-            {mode === "preview" && (
-              <div className={styles.deviceTabs}>
-                <button
-                  type="button"
-                  className={cx(styles.deviceTab, device === "desktop" && styles.on)}
-                  onClick={() => setDevice("desktop")}
-                  aria-label="Desktop preview"
-                  title="Desktop"
-                >
-                  <Monitor strokeWidth={2} />
-                </button>
-                <button
-                  type="button"
-                  className={cx(styles.deviceTab, device === "mobile" && styles.on)}
-                  onClick={() => setDevice("mobile")}
-                  aria-label="Mobile preview"
-                  title="Mobile"
-                >
-                  <Smartphone strokeWidth={2} />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
       {mode === "preview" ? (
         <div className={styles.wrap}>
+          {/* device toggle sits above the framed preview */}
+          <div className={styles.previewBarIn}>
+            <div className={styles.deviceTabs}>
+              <button
+                type="button"
+                className={cx(styles.deviceTab, device === "desktop" && styles.on)}
+                onClick={() => setDevice("desktop")}
+                aria-label="Desktop preview"
+                title="Desktop"
+              >
+                <Monitor strokeWidth={2} />
+              </button>
+              <button
+                type="button"
+                className={cx(styles.deviceTab, device === "mobile" && styles.on)}
+                onClick={() => setDevice("mobile")}
+                aria-label="Mobile preview"
+                title="Mobile"
+              >
+                <Smartphone strokeWidth={2} />
+              </button>
+            </div>
+          </div>
+
           <div className={cx(styles.deviceStage, device === "mobile" && styles.mobile)}>
             <div className={cx(styles.deviceFrame, device === "mobile" && styles.mobile)}>
               <StorefrontPreview rc={rc} />
             </div>
           </div>
-        </div>
-      ) : (
-        <PricingEditor rc={rc} />
-      )}
 
-      {/* host-app Continue / Back */}
-      <div className={styles.wrap}>
-        <div className={styles.actions}>
-          <Button
-            onClick={onContinue}
-            className="w-full h-14 text-base font-medium bg-foreground hover:bg-foreground/90 text-background shadow-sm hover:shadow-md transition-all duration-200 rounded-2xl"
-          >
-            Continue
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onBack}
-            className="w-full h-12 border border-border rounded-2xl bg-transparent hover:bg-muted transition-colors"
-          >
-            Back
-          </Button>
-          <div className="flex justify-center pt-4">
-            <a
-              href="mailto:support@goserv.com"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+          {/* Edit / Continue — mirrors the voda-onboarding preview controls */}
+          <div className={styles.actions}>
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setMode("edit")}
+                className="flex-1 h-14 text-base font-medium border border-border rounded-2xl bg-transparent hover:bg-muted transition-colors"
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </Button>
+              <Button
+                onClick={onContinue}
+                className="flex-1 h-14 text-base font-medium bg-foreground hover:bg-foreground/90 text-background shadow-sm hover:shadow-md transition-all duration-200 rounded-2xl"
+              >
+                <Check className="mr-2 h-5 w-5" />
+                Continue
+              </Button>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onBack}
+              className="w-full h-12 border border-border rounded-2xl bg-transparent hover:bg-muted transition-colors"
             >
-              <HelpCircle className="h-3.5 w-3.5" />
-              Need help?
-            </a>
+              Back
+            </Button>
+            <div className="flex justify-center pt-4">
+              <a
+                href="mailto:support@goserv.com"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+              >
+                <HelpCircle className="h-3.5 w-3.5" />
+                Need help?
+              </a>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <>
+          <PricingEditor rc={rc} />
+          <div className={styles.wrap}>
+            <div className={styles.actions}>
+              <Button
+                type="button"
+                onClick={() => setMode("preview")}
+                className="w-full h-14 text-base font-medium bg-foreground hover:bg-foreground/90 text-background shadow-sm hover:shadow-md transition-all duration-200 rounded-2xl"
+              >
+                <Check className="mr-2 h-5 w-5" />
+                Done — back to preview
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

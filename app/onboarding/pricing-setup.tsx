@@ -284,16 +284,27 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                                 </button>
                               ))}
                             </div>
-                            <select
-                              data-role="sqft"
-                              value={pv.sqft}
-                              onChange={(e) => patchPrev(cat.id, { sqft: parseInt(e.target.value, 10) })}
-                            >
-                              <option value={3000}>3,000 sq ft</option>
-                              <option value={5000}>5,000 sq ft</option>
-                              <option value={7000}>7,000 sq ft</option>
-                              <option value={9000}>9,000 sq ft</option>
-                            </select>
+                            <div className={styles.sqftField} data-role="sqft">
+                              <input
+                                type="number"
+                                min={500}
+                                step={500}
+                                inputMode="numeric"
+                                aria-label="Square footage"
+                                list={`sqft-presets-${cat.id}`}
+                                value={pv.sqft}
+                                onChange={(e) => patchPrev(cat.id, { sqft: parseInt(e.target.value, 10) || 0 })}
+                              />
+                              <span className={styles.sqftSuffix}>sq ft</span>
+                              <datalist id={`sqft-presets-${cat.id}`}>
+                                <option value={3000} />
+                                <option value={5000} />
+                                <option value={7000} />
+                                <option value={9000} />
+                                <option value={12000} />
+                                <option value={15000} />
+                              </datalist>
+                            </div>
                             <select
                               data-role="hours"
                               value={pv.hours}

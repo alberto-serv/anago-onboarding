@@ -175,13 +175,10 @@ export function densityOptionsFor(id: string): DensityCopy {
   return DENSITY_OVERRIDES[id] ?? DENSITY_BY_PROFILE[CATEGORY_BY[id].profile]
 }
 
-const DENSITY_IMG_EXT: Record<string, "png" | "webp"> = {
-  office: "webp", restaurant: "png", retail: "png", warehouse: "png",
-  medical: "webp", fitness: "webp", school: "webp", multiTenant: "webp",
-  autoDealership: "webp", worship: "webp", government: "webp", manufacturing: "webp",
-}
+// All density imagery is served as WebP (the few PNG originals were converted
+// down — ~19 MB → ~4 MB).
 export function densityImage(id: string, density: Density): string {
-  return `/images/density/${id}_${density}.${DENSITY_IMG_EXT[id]}`
+  return `/images/density/${id}_${density}.webp`
 }
 
 // ─── Pricing engine ───────────────────────────────────────────────────────────

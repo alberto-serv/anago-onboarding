@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type ChangeEvent } from "react"
 import { ChevronDown, Eye, Download, RotateCcw } from "lucide-react"
 import styles from "./pricing-setup.module.css"
 import {
@@ -20,6 +20,15 @@ import {
 } from "./rate-card"
 
 const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(" ")
+
+// A number input keeps a leading zero the user types (e.g. "025") because it
+// parses back to the same value the field already holds, so React never re-syncs
+// the DOM. Normalize the field text in place before parsing.
+const cleanNum = (e: ChangeEvent<HTMLInputElement>): string => {
+  const cleaned = e.target.value.replace(/^0+(?=\d)/, "")
+  if (cleaned !== e.target.value) e.currentTarget.value = cleaned
+  return cleaned
+}
 
 interface PrevState {
   sqft: number
@@ -72,7 +81,7 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                 step={0.5}
                 inputMode="decimal"
                 value={rc.defWage}
-                onChange={(e) => rc.setDefWage(num(e.target.value))}
+                onChange={(e) => rc.setDefWage(num(cleanNum(e)))}
               />
               <span className={styles.post}>/ hr</span>
             </div>
@@ -174,7 +183,7 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                               step={0.5}
                               inputMode="decimal"
                               value={rc.wage[cat.id]}
-                              onChange={(e) => rc.setCatWage(cat.id, num(e.target.value))}
+                              onChange={(e) => rc.setCatWage(cat.id, num(cleanNum(e)))}
                             />
                             <span className={styles.post}>/ hr</span>
                           </div>
@@ -215,7 +224,7 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                                         inputMode="decimal"
                                         placeholder="None"
                                         value={val ? val : ""}
-                                        onChange={(e) => rc.setCatMin(cat.id, f.id, num(e.target.value))}
+                                        onChange={(e) => rc.setCatMin(cat.id, f.id, num(cleanNum(e)))}
                                       />
                                       <span className={styles.post}>/ mo</span>
                                     </div>
@@ -293,7 +302,7 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                                 aria-label="Square footage"
                                 list={`sqft-presets-${cat.id}`}
                                 value={pv.sqft}
-                                onChange={(e) => patchPrev(cat.id, { sqft: parseInt(e.target.value, 10) || 0 })}
+                                onChange={(e) => patchPrev(cat.id, { sqft: parseInt(cleanNum(e), 10) || 0 })}
                               />
                               <span className={styles.sqftSuffix}>sq ft</span>
                               <datalist id={`sqft-presets-${cat.id}`}>

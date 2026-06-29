@@ -24,6 +24,9 @@ const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).j
 // A number input keeps a leading zero the user types (e.g. "025") because it
 // parses back to the same value the field already holds, so React never re-syncs
 // the DOM. Normalize the field text in place before parsing.
+// Facility cards are listed alphabetically by name in the editor.
+const EDITOR_CATEGORIES = [...CATEGORIES].sort((a, b) => a.name.localeCompare(b.name))
+
 const cleanNum = (e: ChangeEvent<HTMLInputElement>): string => {
   const cleaned = e.target.value.replace(/^0+(?=\d)/, "")
   if (cleaned !== e.target.value) e.currentTarget.value = cleaned
@@ -42,7 +45,7 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
   const [prev, setPrev] = useState<Record<string, PrevState>>(() =>
     Object.fromEntries(CATEGORIES.map((c) => [c.id, { sqft: 10000, density: "medium" as Density, window: "after" as Win, hours: 2 }])),
   )
-  const [openCards, setOpenCards] = useState<Record<string, boolean>>({ [CATEGORIES[0].id]: true })
+  const [openCards, setOpenCards] = useState<Record<string, boolean>>({ [EDITOR_CATEGORIES[0].id]: true })
   const [openPrev, setOpenPrev] = useState<Record<string, boolean>>({})
 
   const patchPrev = (id: string, patch: Partial<PrevState>) =>
@@ -97,7 +100,7 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
 
         {/* facility cards */}
         <div className={styles.stack}>
-          {CATEGORIES.map((cat) => {
+          {EDITOR_CATEGORIES.map((cat) => {
             const isOpen = !!openCards[cat.id]
             const isShown = rc.shown[cat.id]
             const pv = prev[cat.id]

@@ -21,51 +21,56 @@ import { ArrowRight, Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // Anago franchise locations (anagocleaning.com), sourced from the extract.
-const LOCATION_OPTIONS = [
-  "Atlanta, GA",
-  "Austin, TX",
-  "Baltimore, MD",
-  "Boise, ID",
-  "Charleston, SC",
-  "Charlotte, NC",
-  "Cincinnati, OH",
-  "Clarksville, TN",
-  "Cleveland, OH",
-  "Colorado, CO",
-  "Columbus, OH",
-  "Dallas, TX",
-  "Dayton, OH",
-  "Hampton Roads, VA",
-  "Hawaii, HI",
-  "Houston, TX",
-  "Hudson Valley, NY",
-  "Jacksonville, FL",
-  "Las Vegas, NV",
-  "Long Island, NY",
-  "Metro Detroit, MI",
-  "Minneapolis, MN",
-  "Nebraska, NE",
-  "Newark, NJ",
-  "North Florida, FL",
-  "Northern California, CA",
-  "Oklahoma City, OK",
-  "Orlando, FL",
-  "Philadelphia, PA",
-  "Phoenix, AZ",
-  "Portland, OR",
-  "San Antonio, TX",
-  "South Florida, FL",
-  "South Jersey, NJ",
-  "Southern California, CA",
-  "Southwest Connecticut, CT",
-  "Southwest Florida, FL",
-  "St Paul, MN",
-  "Tampa, FL",
-  "Triangle, NC",
-  "Tulsa, OK",
-  "Vancouver, BC",
-  "Washington DC, DC",
-  "Western PA, PA",
+interface LocationOption {
+  label: string
+  phone: string
+}
+
+const LOCATION_OPTIONS: LocationOption[] = [
+  { label: "Atlanta, GA", phone: "(770) 766-7039" },
+  { label: "Austin, TX", phone: "(512) 980-3741" },
+  { label: "Baltimore, MD", phone: "(410) 561-6503" },
+  { label: "Boise, ID", phone: "(208) 514-4786" },
+  { label: "Charleston, SC", phone: "(843) 874-8997" },
+  { label: "Charlotte, NC", phone: "(704) 326-7576" },
+  { label: "Cincinnati, OH", phone: "(513) 718-4841" },
+  { label: "Clarksville, TN", phone: "(931) 904-7710" },
+  { label: "Cleveland, OH", phone: "(440) 298-2116" },
+  { label: "Colorado, CO", phone: "(720) 738-4875" },
+  { label: "Columbus, OH", phone: "(614) 902-4859" },
+  { label: "Dallas, TX", phone: "(214) 915-0531" },
+  { label: "Dayton, OH", phone: "(937) 932-2520" },
+  { label: "Hampton Roads, VA", phone: "(757) 656-3022" },
+  { label: "Hawaii, HI", phone: "(808) 400-9181" },
+  { label: "Houston, TX", phone: "(713) 581-6303" },
+  { label: "Hudson Valley, NY", phone: "(914) 292-3115" },
+  { label: "Jacksonville, FL", phone: "(904) 601-1391" },
+  { label: "Las Vegas, NV", phone: "(702) 478-3398" },
+  { label: "Long Island, NY", phone: "(516) 701-1843" },
+  { label: "Metro Detroit, MI", phone: "(248) 270-5533" },
+  { label: "Minneapolis, MN", phone: "(952) 260-7307" },
+  { label: "Nebraska, NE", phone: "(402) 382-9073" },
+  { label: "Newark, NJ", phone: "(973) 847-2881" },
+  { label: "North Florida, FL", phone: "(352) 449-3665" },
+  { label: "Northern California, CA", phone: "(408) 335-4255" },
+  { label: "Oklahoma City, OK", phone: "(405) 463-1902" },
+  { label: "Orlando, FL", phone: "(407) 603-3533" },
+  { label: "Philadelphia, PA", phone: "(610) 463-0251" },
+  { label: "Phoenix, AZ", phone: "(480) 771-2703" },
+  { label: "Portland, OR", phone: "(503) 714-9987" },
+  { label: "San Antonio, TX", phone: "(210) 529-8457" },
+  { label: "South Florida, FL", phone: "(954) 289-6250" },
+  { label: "South Jersey, NJ", phone: "(856) 606-0980" },
+  { label: "Southern California, CA", phone: "(949) 518-0660" },
+  { label: "Southwest Connecticut, CT", phone: "(203) 902-8431" },
+  { label: "Southwest Florida, FL", phone: "(239) 237-5475" },
+  { label: "St Paul, MN", phone: "(952) 260-7307" },
+  { label: "Tampa, FL", phone: "(727) 330-3580" },
+  { label: "Triangle, NC", phone: "(919) 925-4337" },
+  { label: "Tulsa, OK", phone: "(918) 779-3315" },
+  { label: "Vancouver, BC", phone: "(604) 670-3443" },
+  { label: "Washington DC, DC", phone: "(301) 900-5303" },
+  { label: "Western PA, PA", phone: "(412) 453-8352" },
 ]
 
 export default function LocationPage() {
@@ -75,7 +80,9 @@ export default function LocationPage() {
 
   const handleContinue = () => {
     if (!locationName) return
+    const selected = LOCATION_OPTIONS.find((o) => o.label === locationName)
     localStorage.setItem("locationName", locationName)
+    if (selected) localStorage.setItem("locationPhone", selected.phone)
     router.push("/login")
   }
 
@@ -136,20 +143,21 @@ export default function LocationPage() {
                     <CommandEmpty>No location found.</CommandEmpty>
                     {LOCATION_OPTIONS.map((loc) => (
                       <CommandItem
-                        key={loc}
-                        value={loc}
+                        key={loc.label}
+                        value={loc.label}
                         onSelect={() => {
-                          setLocationName(loc === locationName ? "" : loc)
+                          setLocationName(loc.label === locationName ? "" : loc.label)
                           setOpen(false)
                         }}
                       >
                         <Check
                           className={cn(
                             "h-4 w-4",
-                            locationName === loc ? "opacity-100" : "opacity-0"
+                            locationName === loc.label ? "opacity-100" : "opacity-0"
                           )}
                         />
-                        {loc}
+                        <span className="flex-1">{loc.label}</span>
+                        <span className="text-xs text-muted-foreground tabular-nums">{loc.phone}</span>
                       </CommandItem>
                     ))}
                   </CommandList>

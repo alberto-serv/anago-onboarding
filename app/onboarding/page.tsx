@@ -34,7 +34,7 @@ import {
   ArrowUpRight,
   ExternalLink,
 } from "lucide-react"
-import { PricingSetup } from "./pricing-setup"
+import { PreviewSection } from "./preview-section"
 
 // Half-hour time options (00:00 → 23:30) shown in the business-hours selects.
 // Values stay in 24h "HH:MM" form to match the stored schedule; labels render
@@ -230,7 +230,7 @@ export default function OnboardingPage() {
           it carries its own design system, scoped so it doesn't touch the rest of the app. */}
       {currentContent === "review-website" ? (
         <div className="pt-16">
-          <PricingSetup onContinue={handleNext} onBack={handlePrevious} />
+          <PreviewSection onContinue={handleNext} onBack={handlePrevious} />
         </div>
       ) : (
       <div className="max-w-4xl mx-auto px-6 pb-16 pt-28 sm:pt-32">

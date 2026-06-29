@@ -754,3 +754,655 @@
   flex-direction: column;
   gap: 12px;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   Preview-section control bar (Preview / Edit + device toggle)
+   ════════════════════════════════════════════════════════════════════ */
+.previewBar {
+  position: sticky;
+  top: 64px; /* clears the app's fixed header (h-16) */
+  z-index: 20;
+  background: rgba(244, 242, 236, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line-soft);
+}
+.previewBarIn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  flex-wrap: wrap;
+}
+.modeTabs,
+.deviceTabs {
+  display: inline-flex;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 30px;
+  padding: 3px;
+  gap: 2px;
+}
+.modeTab {
+  border: none;
+  background: none;
+  font-family: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--body);
+  padding: 8px 16px;
+  border-radius: 24px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.12s;
+}
+.modeTab svg {
+  width: 15px;
+  height: 15px;
+}
+.modeTab.on {
+  background: var(--navy);
+  color: #fff;
+}
+.deviceTab {
+  border: none;
+  background: none;
+  color: var(--muted);
+  width: 38px;
+  height: 32px;
+  border-radius: 22px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s;
+}
+.deviceTab svg {
+  width: 17px;
+  height: 17px;
+}
+.deviceTab.on {
+  background: var(--orange);
+  color: var(--navy);
+}
+
+/* device stage / frame */
+.deviceStage {
+  padding: 24px 0 8px;
+}
+.deviceStage.mobile {
+  display: flex;
+  justify-content: center;
+}
+.deviceFrame {
+  container-type: inline-size;
+  width: 100%;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.deviceFrame.mobile {
+  width: 414px;
+  max-width: 100%;
+  border-radius: 28px;
+  border: 8px solid #11203a;
+  box-shadow: var(--shadow);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Storefront preview (mirrors the Anago landing estimator)
+   Layout is driven by container queries so the mobile frame gets a real
+   mobile layout regardless of the outer viewport width.
+   ════════════════════════════════════════════════════════════════════ */
+.sf {
+  background: #fff;
+  color: var(--body);
+  font-family: var(--text);
+}
+.sfHeader {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.sfLogo {
+  height: 30px;
+  width: auto;
+}
+.sfHero {
+  background: var(--band-soft);
+  border-bottom: 1px solid var(--line-soft);
+  text-align: center;
+  padding: 44px 20px;
+}
+.sfTitle {
+  font-family: var(--display);
+  text-transform: uppercase;
+  color: var(--navy);
+  font-size: clamp(26px, 6cqi, 50px);
+  line-height: 0.94;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+  max-width: 16ch;
+  margin: 0 auto;
+}
+.sfLead {
+  margin: 16px auto 0;
+  color: var(--body);
+  font-size: 16px;
+  max-width: 46ch;
+}
+.sfSkip {
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--orange-deep);
+  font-size: 15px;
+}
+.sfSkip svg {
+  width: 18px;
+  height: 18px;
+}
+.sfSection {
+  border-top: 1px solid var(--line-soft);
+  padding: 40px 22px;
+}
+.sfSection:first-of-type {
+  border-top: none;
+}
+.sfTrustSection {
+  background: var(--paper);
+}
+
+/* step header */
+.sfStepHead {
+  text-align: center;
+  margin-bottom: 26px;
+}
+.sfStepRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+}
+.sfStepNum {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: var(--navy);
+  font-weight: 800;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 26px;
+}
+.sfStepTitle {
+  font-family: var(--display);
+  text-transform: uppercase;
+  color: var(--navy);
+  font-size: clamp(20px, 3.6cqi, 30px);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+  margin: 0;
+}
+.sfStepSub {
+  margin: 12px auto 0;
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 52ch;
+}
+
+/* facility grid */
+.sfFacGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+.sfFacCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 8px;
+  border-radius: 12px;
+  border: none;
+  background: var(--navy);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.14s;
+  aspect-ratio: 1 / 0.78;
+}
+.sfFacCard:hover {
+  background: var(--navy-deep);
+}
+.sfFacCard.sel {
+  background: var(--orange);
+  color: var(--navy);
+}
+.sfFacIc svg {
+  width: 26px;
+  height: 26px;
+}
+.sfFacName {
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.15;
+}
+
+/* time window */
+.sfWindowGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.sfWindowCard {
+  position: relative;
+  padding: 22px;
+  border-radius: 16px;
+  border: 2px solid var(--line);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sfWindowCard:hover {
+  border-color: #cdd5e0;
+}
+.sfWindowCard.sel {
+  border-color: var(--orange);
+  background: linear-gradient(180deg, #fffbf2, #fff7e8);
+}
+.sfWindowLabel {
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--navy);
+}
+.sfWindowCopy {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.sfBadge {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 12px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--orange-deep);
+  background: rgba(247, 161, 29, 0.16);
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+
+/* hours pills */
+.sfHoursRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.sfHourPill {
+  padding: 14px 4px;
+  border-radius: 12px;
+  border: 2px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--navy);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.14s;
+}
+.sfHourPill span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.sfHourPill.sel {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: #fff;
+}
+.sfHourPill.sel span {
+  color: #bcc8da;
+}
+
+/* size slider */
+.sfSliderWrap {
+  max-width: 640px;
+  margin: 0 auto;
+}
+.sfSliderValue {
+  text-align: center;
+  font-weight: 800;
+  font-size: 30px;
+  color: var(--navy);
+  margin-bottom: 18px;
+}
+.sfSliderValue span {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.sfSlider {
+  width: 100%;
+  height: 6px;
+  border-radius: 6px;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  cursor: pointer;
+}
+.sfSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--orange);
+  box-shadow: 0 2px 6px rgba(25, 50, 83, 0.25);
+  cursor: pointer;
+}
+.sfSlider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--orange);
+  cursor: pointer;
+}
+.sfSliderEnds {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* frequency */
+.sfEyebrow {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.sfEyebrowMt {
+  margin-top: 22px;
+}
+.sfFreqGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.sfMonthlyGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.sfFreqPill {
+  padding: 13px 4px;
+  border-radius: 12px;
+  border: 2px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.14s;
+}
+.sfFreqPill:hover {
+  border-color: #cdd5e0;
+}
+.sfFreqBig {
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--navy);
+}
+.sfFreqSub {
+  font-size: 11px;
+  color: var(--muted);
+}
+.sfFreqPill.sel {
+  border-color: var(--navy);
+  background: var(--navy);
+}
+.sfFreqPill.sel .sfFreqBig {
+  color: #fff;
+}
+.sfFreqPill.sel .sfFreqSub {
+  color: #bcc8da;
+}
+.sfShowMonthly {
+  display: block;
+  margin: 22px auto 0;
+  background: none;
+  border: none;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--orange-deep);
+  cursor: pointer;
+}
+.sfShowMonthly svg {
+  width: 15px;
+  height: 15px;
+  display: inline;
+  vertical-align: -2px;
+  margin-left: 4px;
+}
+
+/* density */
+.sfDensityGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  max-width: 880px;
+  margin: 0 auto;
+}
+.sfDensityCard {
+  display: flex;
+  flex-direction: row;
+  text-align: left;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sfDensityCard:hover {
+  border-color: #cdd5e0;
+}
+.sfDensityCard.sel {
+  border-color: var(--orange);
+  box-shadow: 0 12px 30px rgba(247, 161, 29, 0.22);
+}
+.sfDensityImg {
+  position: relative;
+  width: 112px;
+  flex: 0 0 112px;
+  background: #eef0f3;
+}
+.sfDensityImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.sfDensityBody {
+  padding: 16px;
+  flex: 1;
+}
+.sfDensityLabel {
+  display: block;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--navy);
+}
+.sfDensityLabel.sel {
+  color: var(--orange-deep);
+}
+.sfDensityCopy {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* estimate band */
+.sfEstimate {
+  max-width: 880px;
+  margin: 0 auto;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: var(--band);
+  box-shadow: var(--shadow-sm);
+  padding: 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-start;
+}
+.sfPriceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.sfPrice {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.sfPriceUnit {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--body);
+}
+.sfMinNote {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--orange-deep);
+  margin-top: 6px;
+}
+.sfEstimateBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 17px;
+  background: var(--orange);
+  color: var(--navy);
+  border-radius: 44px;
+  padding: 13px 26px;
+  box-shadow: 0 8px 22px rgba(247, 161, 29, 0.32);
+}
+.sfEstimateBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* trust */
+.sfTrust {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+  max-width: 880px;
+  margin: 0 auto;
+  text-align: center;
+}
+.sfTrustIcon {
+  width: 22px;
+  height: 22px;
+  color: var(--orange-deep);
+  margin: 0 auto 8px;
+  display: block;
+}
+.sfTrustTitle {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--navy);
+}
+.sfTrustText {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* ── container-query breakpoints (relative to the device frame) ── */
+@container (min-width: 480px) {
+  .sfFacGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@container (min-width: 560px) {
+  .sfWindowGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .sfFreqGrid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+  .sfHoursRow {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+@container (min-width: 680px) {
+  .sfFacGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .sfDensityGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .sfDensityCard {
+    flex-direction: column;
+  }
+  .sfDensityImg {
+    width: 100%;
+    flex: none;
+    aspect-ratio: 4 / 3;
+  }
+  .sfTrust {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .sfEstimate {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+@container (min-width: 880px) {
+  .sfFacGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}

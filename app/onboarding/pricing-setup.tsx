@@ -31,7 +31,7 @@ interface PrevState {
 export function PricingEditor({ rc }: { rc: RateCard }) {
   // Quote-preview UI state is editor-local (it doesn't affect the saved rate card).
   const [prev, setPrev] = useState<Record<string, PrevState>>(() =>
-    Object.fromEntries(CATEGORIES.map((c) => [c.id, { sqft: 5000, density: "medium" as Density, window: "after" as Win, hours: 2 }])),
+    Object.fromEntries(CATEGORIES.map((c) => [c.id, { sqft: 10000, density: "medium" as Density, window: "after" as Win, hours: 2 }])),
   )
   const [openCards, setOpenCards] = useState<Record<string, boolean>>({ [CATEGORIES[0].id]: true })
   const [openPrev, setOpenPrev] = useState<Record<string, boolean>>({})

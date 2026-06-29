@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Anago — Pricing Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Special+Gothic+Condensed+One&family=Libre+Franklin:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#193253;
+    --navy-deep:#102138;
+    --orange:#F7A11D;
+    --orange-deep:#E08F12;
+    --cream:#FDE09A;
+    --sky:#DCF1F9;
+    --ink:#193253;
+    --body:#41506A;
+    --muted:#8893A6;
+    --line:#E7E3DA;
+    --line-soft:#EFECE4;
+    --paper:#F7F6F1;
+    --band:linear-gradient(100deg,#FBE4B0 0%,#FFFDF8 48%,#DDF0FA 100%);
+    --band-soft:linear-gradient(100deg,#FFF6E2 0%,#FFFFFF 50%,#EFF8FC 100%);
+    --display:"Special Gothic Condensed One",sans-serif;
+    --text:"Libre Franklin",sans-serif;
+    --shadow:0 18px 50px rgba(25,50,83,.10);
+    --shadow-sm:0 6px 20px rgba(25,50,83,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:var(--text);color:var(--body);background:#F4F2EC;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px;}
+  .disp{font-family:var(--display);text-transform:uppercase;color:var(--ink);line-height:.94;font-weight:400;letter-spacing:.01em;}
+  img{display:block;}
+  button{font-family:var(--text);}
+
+  /* ---- top bar ---- */
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line-soft);}
+  .topbar .inner{display:flex;align-items:center;justify-content:space-between;height:72px;gap:20px;}
+  .topbar .lead{display:flex;align-items:center;gap:18px;}
+  .topbar .logo{height:42px;width:auto;}
+  .topbar .seg{height:30px;width:1px;background:var(--line);}
+  .topbar .portal{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+  .topbar .portal strong{display:block;font-size:14px;letter-spacing:.02em;color:var(--navy);font-weight:700;text-transform:none;margin-top:2px;}
+  .topbar .who{display:flex;align-items:center;gap:11px;}
+  .topbar .who .av{width:38px;height:38px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;}
+  .topbar .who .nm{font-size:13.5px;font-weight:700;color:var(--navy);line-height:1.2;}
+  .topbar .who .rg{font-size:12px;color:var(--muted);}
+
+  /* ---- page header ---- */
+  .head{padding:46px 28px 30px;}
+  .crumb{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--muted);margin-bottom:16px;}
+  .crumb b{color:var(--orange-deep);}
+  .head h1{font-family:var(--display);text-transform:uppercase;color:var(--navy);font-size:clamp(38px,5.4vw,58px);line-height:.92;letter-spacing:.01em;font-weight:400;}
+  .head p{font-size:17px;color:var(--body);margin-top:14px;max-width:62ch;}
+
+  /* ---- formula strip ---- */
+  .formula{background:var(--band);border:1px solid #f0e4c4;border-radius:18px;padding:24px 28px;margin-top:26px;display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch;box-shadow:var(--shadow-sm);}
+  .formula .fcol{display:flex;flex-direction:column;gap:6px;justify-content:center;}
+  .formula .flab{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--orange-deep);}
+  .formula .fbig{font-family:var(--text);font-weight:700;color:var(--navy);font-size:16px;line-height:1.4;}
+  .formula .fbig em{font-style:normal;color:var(--orange-deep);font-weight:800;}
+  .formula .fsub{font-size:12.5px;color:var(--body);}
+  .formula .fmid{display:flex;align-items:center;justify-content:center;color:#cbb27a;}
+  .formula .fmid svg{width:26px;height:26px;}
+  @media (max-width:760px){.formula{grid-template-columns:1fr;}.formula .fmid{display:none;}}
+
+  /* ---- toolbar ---- */
+  .toolbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:28px 0 18px;padding:18px 22px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-sm);}
+  .toolbar .tlab{font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);}
+  .wagebox{display:flex;align-items:center;gap:10px;}
+  .moneyfield{display:inline-flex;align-items:center;border:1.5px solid #d4dae3;border-radius:10px;overflow:hidden;background:#fff;transition:border .15s,box-shadow .15s;}
+  .moneyfield:focus-within{border-color:var(--orange);box-shadow:0 0 0 3px rgba(247,161,29,.14);}
+  .moneyfield .pre{padding:0 2px 0 12px;color:var(--muted);font-weight:700;font-size:15px;}
+  .moneyfield .post{padding:0 12px 0 4px;color:var(--muted);font-size:12.5px;font-weight:600;white-space:nowrap;}
+  .moneyfield input{border:none;outline:none;background:none;font-family:var(--text);font-weight:700;color:var(--navy);font-size:16px;width:62px;padding:11px 2px;text-align:left;}
+  .moneyfield.sm input{width:58px;font-size:14.5px;padding:9px 2px;}
+  .moneyfield.sm .pre{padding-left:10px;font-size:14px;}
+  .toolbar .grow{flex:1;}
+  .btn-apply{background:var(--navy);color:#fff;border:none;font-family:var(--text);font-weight:700;font-size:13.5px;letter-spacing:.01em;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;transition:background .15s,transform .12s,box-shadow .15s;box-shadow:0 4px 12px rgba(25,50,83,.16);white-space:nowrap;}
+  .btn-apply:hover{background:var(--navy-deep);transform:translateY(-1px);box-shadow:0 6px 16px rgba(25,50,83,.22);}
+  .btn-apply:active{transform:translateY(0);}
+  .btn-apply svg{width:16px;height:16px;}
+  .lnk{background:none;border:none;color:var(--orange-deep);font-weight:700;font-size:13.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:8px 6px;border-radius:8px;}
+  .lnk:hover{color:var(--orange);}
+  .lnk svg{width:15px;height:15px;}
+
+  /* ---- facility card ---- */
+  .stack{display:flex;flex-direction:column;gap:14px;padding-bottom:140px;}
+  .fac{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-sm);overflow:hidden;transition:box-shadow .18s;}
+  .fac.open{box-shadow:var(--shadow);}
+  .fac-bar{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:20px;align-items:center;padding:18px 22px;cursor:pointer;width:100%;background:none;border:none;text-align:left;}
+  .fac-ic{width:50px;height:50px;border-radius:13px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 50px;}
+  .fac.open .fac-ic{background:var(--orange);color:var(--navy);}
+  .fac-ic svg{width:26px;height:26px;}
+  .fac-id .nm{font-family:var(--display);text-transform:uppercase;color:var(--navy);font-size:23px;line-height:.96;letter-spacing:.01em;}
+  .fac-id .tag{display:inline-flex;align-items:center;gap:7px;margin-top:6px;font-size:11.5px;color:var(--muted);font-weight:600;}
+  .fac-id .tag .dot{width:5px;height:5px;border-radius:50%;background:var(--orange);}
+  .fac-snap{text-align:right;display:flex;flex-direction:column;gap:3px;}
+  .fac-snap .sv{font-size:14.5px;font-weight:700;color:var(--navy);}
+  .fac-snap .sv span{color:var(--muted);font-weight:600;}
+  .fac-snap .ss{font-size:12px;color:var(--muted);}
+  .fac-snap .ss b{color:var(--orange-deep);font-weight:700;}
+  .chev{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--navy);transition:transform .2s,background .15s;flex:0 0 34px;}
+  .fac.open .chev{transform:rotate(180deg);background:var(--paper);}
+  .chev svg{width:17px;height:17px;}
+  @media (max-width:720px){.fac-bar{grid-template-columns:auto 1fr auto auto;}.fac-snap{display:none;}}
+
+  /* ---- visibility toggle ---- */
+  .vis{display:flex;align-items:center;gap:9px;}
+  .vis .vlab{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);min-width:46px;text-align:right;}
+  .switch{position:relative;width:42px;height:24px;border-radius:20px;border:none;background:#cfd6e0;cursor:pointer;transition:background .15s;padding:0;flex:0 0 42px;}
+  .switch.on{background:var(--orange);}
+  .switch .knob{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .16s;box-shadow:0 1px 3px rgba(25,50,83,.25);}
+  .switch.on .knob{transform:translateX(18px);}
+  .fac.hidden-fac{background:#FBFAF7;}
+  .fac.hidden-fac .fac-ic{background:#E7E3DA;color:#9aa4b5;}
+  .fac.hidden-fac .fac-id .nm{color:#9aa4b5;}
+  .fac.hidden-fac .fac-snap{opacity:.5;}
+  .count-pill{font-size:12.5px;font-weight:700;color:var(--navy);background:var(--paper);border:1px solid var(--line-soft);border-radius:30px;padding:8px 14px;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;}
+  .count-pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--orange);}
+
+  /* ---- panel ---- */
+  .panel{display:none;border-top:1px solid var(--line-soft);}
+  .fac.open .panel{display:block;}
+  .panel-in{padding:26px 24px 28px;display:grid;grid-template-columns:300px 1fr;gap:26px;}
+  @media (max-width:820px){.panel-in{grid-template-columns:1fr;}}
+
+  .ctrl-h{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .ctrl-h .n{width:18px;height:18px;border-radius:50%;background:var(--navy);color:#fff;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;}
+
+  .wage-block{background:var(--paper);border:1px solid var(--line-soft);border-radius:14px;padding:20px;}
+  .wage-block .big{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+  .wage-block .moneyfield input{width:84px;font-size:24px;font-weight:800;padding:12px 2px;}
+  .wage-block .moneyfield .pre{font-size:20px;}
+  .wage-block .hint{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:12px;}
+  .ratepill{margin-top:14px;background:#fff;border:1px solid var(--line-soft);border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:10px;}
+  .ratepill svg{width:17px;height:17px;color:var(--orange-deep);flex:0 0 17px;}
+  .ratepill .rt{font-size:12.5px;color:var(--body);line-height:1.4;}
+  .ratepill .rt b{color:var(--navy);}
+
+  /* minimums */
+  .min-wrap{}
+  .min-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 22px;}
+  .min-grp .gh{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .min-grp .gh small{color:var(--muted);font-weight:600;font-size:11px;}
+  .min-row{display:flex;flex-direction:column;gap:8px;}
+  .min-line{display:flex;align-items:center;gap:10px;}
+  .min-line .fl{flex:0 0 64px;font-size:12.5px;font-weight:700;color:var(--body);}
+  .min-line .moneyfield{flex:1;}
+  .min-line .moneyfield input{width:100%;}
+  .min-line .moneyfield .post{font-size:11px;}
+  .min-line.off .moneyfield{border-style:dashed;background:#fcfbf7;}
+  .min-note{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5;}
+
+  /* preview */
+  .prev{grid-column:1 / -1;margin-top:6px;background:var(--band-soft);border:1px solid var(--line-soft);border-radius:14px;padding:18px 22px;}
+  .prev-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;background:none;border:none;cursor:pointer;padding:0;text-align:left;}
+  .prev-chev{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--navy);transition:transform .2s,border-color .15s;flex:0 0 28px;}
+  .prev-chev svg{width:14px;height:14px;}
+  .prev-toggle:hover .prev-chev{border-color:var(--orange);color:var(--orange-deep);}
+  .prev-toggle .pt-h{font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--navy);display:flex;align-items:center;gap:9px;}
+  .prev-toggle .pt-h svg{width:16px;height:16px;color:var(--orange-deep);}
+  .prev.open .prev-chev{transform:rotate(180deg);}
+  .prev-body{display:none;margin-top:18px;}
+  .prev.open .prev-body{display:block;}
+  .prev-top{display:flex;align-items:center;justify-content:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+  .prev-top .pt-h{font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--navy);display:flex;align-items:center;gap:8px;}
+  .prev-top .pt-h svg{width:16px;height:16px;color:var(--orange-deep);}
+  .prev-ctl{display:flex;align-items:center;gap:8px;}
+  .seg-pills{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:30px;padding:3px;gap:2px;}
+  .seg-pills button{border:none;background:none;font-size:12px;font-weight:700;color:var(--body);padding:6px 13px;border-radius:24px;cursor:pointer;transition:all .12s;}
+  .seg-pills button.on{background:var(--navy);color:#fff;}
+  .prev-ctl select{font-family:var(--text);font-weight:700;font-size:12.5px;color:var(--navy);border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 10px;cursor:pointer;}
+  .seg-pills.win button.on{background:var(--orange);color:var(--navy);}
+  .prev[data-win="business"] .seg-pills[data-role="density"],
+  .prev[data-win="business"] select[data-role="sqft"]{display:none;}
+  .prev[data-win="after"] select[data-role="hours"]{display:none;}
+  .prev-basis{font-size:12.5px;color:var(--body);margin-top:14px;font-weight:600;}
+  .prev-basis b{color:var(--orange-deep);font-weight:700;}
+
+  .ptab{width:100%;border-collapse:collapse;}
+  .ptab th{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;padding:0 0 10px;}
+  .ptab th:first-child{text-align:left;}
+  .ptab td{padding:9px 0;border-top:1px solid rgba(228,224,214,.7);font-size:14px;text-align:right;color:var(--body);}
+  .ptab td:first-child{text-align:left;font-weight:700;color:var(--navy);}
+  .ptab td .pv{font-weight:600;}
+  .ptab td .raw{color:var(--muted);}
+  .ptab td .bill{font-weight:800;color:var(--navy);font-size:15px;}
+  .ptab tr.floored td .bill{color:var(--orange-deep);}
+  .flag{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--orange-deep);background:rgba(247,161,29,.16);border-radius:20px;padding:3px 9px;margin-left:8px;}
+  .dash{color:#c4ccd8;}
+  .prev-foot{font-size:11.5px;color:var(--muted);margin-top:14px;display:flex;align-items:center;gap:8px;}
+  .prev-foot .sw{width:12px;height:12px;border-radius:3px;background:rgba(247,161,29,.2);border:1px solid rgba(247,161,29,.45);flex:0 0 12px;}
+  @media (max-width:560px){.ptab th:nth-child(2),.ptab td:nth-child(2){display:none;}}
+
+  /* ---- save bar ---- */
+  .savebar{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-top:1px solid var(--line);box-shadow:0 -10px 30px rgba(25,50,83,.07);}
+  .savebar .inner{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 0;flex-wrap:wrap;}
+  .savebar .status{display:flex;align-items:center;gap:11px;font-size:13.5px;color:var(--body);}
+  .savebar .status .dotx{width:9px;height:9px;border-radius:50%;background:#cfd6e0;flex:0 0 9px;}
+  .savebar .status.dirty .dotx{background:var(--orange);box-shadow:0 0 0 4px rgba(247,161,29,.18);}
+  .savebar .status.saved .dotx{background:#3FA66A;box-shadow:0 0 0 4px rgba(63,166,106,.16);}
+  .savebar .status b{color:var(--navy);font-weight:700;}
+  .savebar .acts{display:flex;align-items:center;gap:12px;}
+  .btn{font-family:var(--display);font-weight:400;text-transform:uppercase;letter-spacing:.02em;font-size:18px;line-height:1;border:none;border-radius:44px;padding:14px 30px;cursor:pointer;display:inline-flex;align-items:center;gap:9px;transition:transform .12s,box-shadow .15s,background .15s;}
+  .btn svg{width:18px;height:18px;}
+  .btn:hover{transform:translateY(-1px);}
+  .btn-orange{background:var(--orange);color:var(--navy);box-shadow:0 8px 22px rgba(247,161,29,.32);}
+  .btn-orange:hover{background:var(--orange-deep);}
+  .btn-ghost{background:#fff;color:var(--navy);border:2px solid var(--navy);}
+  .btn-ghost:hover{background:var(--paper);}
+  .btn[disabled]{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+
+  .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;font-size:14px;font-weight:600;padding:13px 22px;border-radius:40px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;opacity:0;pointer-events:none;transition:all .25s;z-index:60;}
+  .toast svg{width:17px;height:17px;color:var(--orange);}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap inner">
+    <div class="lead">
+      <img class="logo" src="assets/anago-logo.png" alt="Anago Cleaning Systems" />
+      <div class="seg"></div>
+      <div class="portal">Franchisee Console<strong>Pricing Setup</strong></div>
+    </div>
+    <div class="who">
+      <div style="text-align:right;">
+        <div class="nm">Riverside Anago</div>
+        <div class="rg">Master franchise · Region 14</div>
+      </div>
+      <div class="av">RA</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap head">
+  <div class="crumb"><b>Pricing</b> &nbsp;/&nbsp; Rate Card Setup</div>
+  <h1>Set Your Rates</h1>
+  <p>Two numbers drive every instant quote your customers see. Set the <strong>hourly wage</strong> your crews bill at and the <strong>monthly minimums</strong> that protect small jobs — for each of your 12 facility types. Production rates and packages are set by Anago corporate and stay fixed.</p>
+</div>
+
+<div class="wrap">
+  <div class="toolbar">
+    <span class="tlab">Default hourly wage</span>
+    <div class="wagebox">
+      <div class="moneyfield sm">
+        <span class="pre">$</span>
+        <input id="defWage" type="number" min="0" step="0.5" value="25" inputmode="decimal" />
+        <span class="post">/ hr</span>
+      </div>
+      <button class="btn-apply" id="applyAll">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>
+        Apply to all 12
+      </button>
+    </div>
+    <div class="grow"></div>
+    <span class="count-pill" id="shownCount">12 of 12 shown</span>
+    <button class="lnk" id="resetAll">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+      Reset to Anago defaults
+    </button>
+  </div>
+
+  <div class="stack" id="stack"></div>
+</div>
+
+<div class="savebar">
+  <div class="wrap inner">
+    <div class="status saved" id="status"><span class="dotx"></span><span id="statusText">All changes saved</span></div>
+    <div class="acts">
+      <button class="btn btn-ghost" id="collapseAll">Collapse all</button>
+      <button class="btn btn-orange" id="saveBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        Save rate card
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+  <span id="toastText">Rate card saved</span>
+</div>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#193253"/>
+    <text x="30" y="62" font-family="serif" font-style="italic" font-size="40" fill="#fff" text-anchor="middle">$</text>
+    <path d="M64 30l2.6 7 7 2.6-7 2.6L64 51.4l-2.6-7-7-2.6 7-2.6z" fill="#F7A11D"/>
+    <rect x="22" y="78" width="56" height="7" rx="3.5" fill="#F7A11D"/>
+  </svg>
+</template>
+
+<script>
+(function(){
+  "use strict";
+
+  // ── Facility catalog (12 priceable types from lib/cleaning-data.ts) ──────────
+  // Each carries its profile, production rates per density [fast → low price,
+  // slow → high price] in sq ft per labor-hour, and a line icon.
+  var FAC_ICONS = {
+    office:'<path d="M5 21V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v17"/><path d="M16 9h3a1 1 0 0 1 1 1v11"/><path d="M3 21h18"/><path d="M8 7h2M8 11h2M8 15h2"/>',
+    medical:'<path d="M12 21s-7-4.4-9.2-9A5 5 0 0 1 12 6a5 5 0 0 1 9.2 6c-2.2 4.6-9.2 9-9.2 9z"/><path d="M12 9v6"/><path d="M9 12h6"/>',
+    restaurant:'<path d="M6 3v7a2 2 0 0 0 4 0V3"/><path d="M8 10v11"/><path d="M16 3c-1.5 0-2.5 2-2.5 5s1 4 2.5 4v9"/>',
+    retail:'<path d="M4 9h16l-1 11a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/>',
+    warehouse:'<path d="M3 21V9l9-5 9 5v12"/><path d="M7 21v-7h10v7"/><path d="M7 17h10"/>',
+    fitness:'<path d="M6.5 6.5v11"/><path d="M17.5 6.5v11"/><path d="M4 9v6"/><path d="M20 9v6"/><path d="M6.5 12h11"/>',
+    school:'<path d="M3 9l9-4 9 4-9 4z"/><path d="M7 11v5c0 1 2 2.5 5 2.5s5-1.5 5-2.5v-5"/><path d="M21 9v5"/>',
+    multiTenant:'<path d="M3 21V8l6-3v16"/><path d="M9 21V11l6-3v13"/><path d="M15 21V12l6 2v7"/><path d="M3 21h18"/>',
+    autoDealership:'<path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13"/><path d="M3 13h18v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="7" cy="15.5" r="1"/><circle cx="17" cy="15.5" r="1"/>',
+    worship:'<path d="M12 2v5"/><path d="M9.5 4.5h5"/><path d="M5 21V11l7-4 7 4v10"/><path d="M9 21v-5h6v5"/>',
+    government:'<path d="M3 21h18"/><path d="M5 21V10"/><path d="M19 21V10"/><path d="M9 21V10"/><path d="M15 21V10"/><path d="M3 10l9-6 9 6"/><path d="M3 10h18"/>',
+    manufacturing:'<path d="M3 21V10l5 3V10l5 3V8l6 4v9z"/><path d="M3 21h18"/><path d="M7 17h.01"/><path d="M12 17h.01"/>'
+  };
+
+  var CATEGORIES = [
+    { id:"office",         name:"Office Building",   profile:"Office profile",     rates:{low:[3500,3000],medium:[3000,2500],high:[2500,2000]} },
+    { id:"medical",        name:"Medical Office",    profile:"Office profile · sterile", rates:{low:[3500,3000],medium:[3000,2000],high:[2000,1500]} },
+    { id:"restaurant",     name:"Restaurant",        profile:"Restaurant profile", rates:{low:[3000,2000],medium:[2000,1500],high:[1500,1000]} },
+    { id:"retail",         name:"Retail",            profile:"Retail profile",     rates:{low:[3000,2000],medium:[2000,1500],high:[1500,1000]} },
+    { id:"warehouse",      name:"Warehouse",         profile:"Warehouse profile",  rates:{low:[3000,2500],medium:[2500,1500],high:[2000,1000]} },
+    { id:"fitness",        name:"Fitness Center",    profile:"Retail profile",     rates:{low:[2500,2000],medium:[2000,1500],high:[1500,1000]} },
+    { id:"school",         name:"School / Educational", profile:"Office profile",  rates:{low:[3000,2500],medium:[2500,1500],high:[2000,1000]} },
+    { id:"multiTenant",    name:"Multi-Tenant Building", profile:"Office profile", rates:{low:[3000,2000],medium:[2500,1500],high:[2000,1000]} },
+    { id:"autoDealership", name:"Auto / Car Dealership", profile:"Retail profile", rates:{low:[3500,2500],medium:[3000,2000],high:[2000,1500]} },
+    { id:"worship",        name:"Church / Worship",  profile:"Office profile",     rates:{low:[3500,2500],medium:[3000,2000],high:[2500,1500]} },
+    { id:"government",     name:"Government Building", profile:"Office profile",    rates:{low:[3500,3000],medium:[3000,2500],high:[2500,2000]} },
+    { id:"manufacturing",  name:"Manufacturing Facility", profile:"Warehouse profile", rates:{low:[3000,2500],medium:[2500,1500],high:[2000,1000]} }
+  ];
+
+  // Frequencies — visitsPerMonth verbatim from the sheet.
+  var FREQS = [
+    { id:"1x-month", label:"1× / Month", short:"1×/mo", v:1,     grp:"monthly" },
+    { id:"2x-month", label:"2× / Month", short:"2×/mo", v:2,     grp:"monthly" },
+    { id:"1x-week",  label:"1× / Week",  short:"1×/wk", v:4.33,  grp:"weekly" },
+    { id:"2x-week",  label:"2× / Week",  short:"2×/wk", v:8.66,  grp:"weekly" },
+    { id:"3x-week",  label:"3× / Week",  short:"3×/wk", v:13,    grp:"weekly" },
+    { id:"4x-week",  label:"4× / Week",  short:"4×/wk", v:17.33, grp:"weekly" },
+    { id:"5x-week",  label:"5× / Week",  short:"5×/wk", v:21.65, grp:"weekly" },
+    { id:"6x-week",  label:"6× / Week",  short:"6×/wk", v:26,    grp:"weekly" },
+    { id:"7x-week",  label:"7× / Week",  short:"7×/wk", v:30.33, grp:"weekly" }
+  ];
+  var FREQ_BY = {}; FREQS.forEach(function(f){ FREQ_BY[f.id]=f; });
+
+  // Anago default minimums (sheet column K — identical on every industry tab).
+  var DEFAULT_MIN = { "1x-month":155, "2x-month":295, "1x-week":385, "2x-week":0, "3x-week":0, "4x-week":0, "5x-week":825, "6x-week":0, "7x-week":0 };
+  var DEFAULT_WAGE = 25;
+  var PREV_FREQS = ["1x-month","2x-month","1x-week","3x-week","5x-week"];
+  var STORE_KEY = "anago-pricing-setup-v1";
+
+  // ── State ────────────────────────────────────────────────────────────────────
+  function freshState(){
+    var s = { wage:{}, min:{}, shown:{}, _prev:{} };
+    CATEGORIES.forEach(function(c){
+      s.wage[c.id] = DEFAULT_WAGE;
+      s.min[c.id] = {};
+      FREQS.forEach(function(f){ s.min[c.id][f.id] = DEFAULT_MIN[f.id]; });
+      s.shown[c.id] = true;
+      s._prev[c.id] = { sqft:5000, density:"medium", window:"after", hours:2 };
+    });
+    return s;
+  }
+  var state = freshState();
+  var saved = null;
+  try { saved = JSON.parse(localStorage.getItem(STORE_KEY)||"null"); } catch(e){}
+  if (saved && saved.wage && saved.min){
+    CATEGORIES.forEach(function(c){
+      if (typeof saved.wage[c.id] === "number") state.wage[c.id] = saved.wage[c.id];
+      if (saved.shown && typeof saved.shown[c.id] === "boolean") state.shown[c.id] = saved.shown[c.id];
+      if (saved.min[c.id]) FREQS.forEach(function(f){
+        if (typeof saved.min[c.id][f.id] === "number") state.min[c.id][f.id] = saved.min[c.id][f.id];
+      });
+    });
+  }
+  var dirty = false;
+
+  // ── Pricing (mirrors getProductionPrice in lib/cleaning-data.ts) ─────────────
+  function money(n){ return Math.round(n).toLocaleString("en-US"); }
+  function price(cat, freqId, sqft, density, wage){
+    var r = cat.rates[density], fast=r[0], slow=r[1];
+    var v = FREQ_BY[freqId].v;
+    var perVisitLow = (sqft/fast)*wage, perVisitHigh = (sqft/slow)*wage;
+    var perVisitPoint = (perVisitLow+perVisitHigh)/2;
+    var rawLow = (sqft/fast)*v*wage, rawHigh = (sqft/slow)*v*wage;
+    var rawPoint = (rawLow+rawHigh)/2;
+    var minimum = state.min[cat.id][freqId] || 0;
+    var monthly = Math.max(minimum, rawPoint);
+    return {
+      perVisit: Math.round(perVisitPoint),
+      rawMonthly: Math.round(rawPoint),
+      minimum: minimum,
+      monthly: Math.round(monthly),
+      floored: minimum > rawPoint + 1e-9
+    };
+  }
+
+  // ── Day-cleaning price ("During Business Hours") — mirrors getPriceForHours ──
+  // No production rate: the customer keys in hours/day, billed straight at the wage.
+  //   per visit = hours/day × wage   (frequency-independent)
+  //   monthly   = hours/day × visits × wage, floored to the same monthly minimum
+  function priceHours(catId, freqId, hoursPerDay, wage){
+    var v = FREQ_BY[freqId].v;
+    var perVisit = hoursPerDay * wage;
+    var rawMonthly = hoursPerDay * v * wage;
+    var minimum = state.min[catId][freqId] || 0;
+    var monthly = Math.max(minimum, rawMonthly);
+    return {
+      perVisit: Math.round(perVisit),
+      rawMonthly: Math.round(rawMonthly),
+      minimum: minimum,
+      monthly: Math.round(monthly),
+      floored: minimum > rawMonthly + 1e-9
+    };
+  }
+
+  // ── DOM helpers ──────────────────────────────────────────────────────────────
+  function el(tag, cls, html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
+  var ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+  var GEAR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+  var EYE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var GAUGE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="M12 14l4-4"/><path d="M5.5 19a9 9 0 1 1 13 0"/></svg>';
+
+  function moneyField(opts){
+    // opts: value, post, cls, dataset {fac, freq, role}
+    var v = (opts.value === 0 || opts.value === "" ) && opts.allowBlank ? "" : opts.value;
+    var f = el("div", "moneyfield" + (opts.cls?(" "+opts.cls):""));
+    f.innerHTML = '<span class="pre">$</span><input type="number" min="0" step="'+(opts.step||"1")+'" inputmode="decimal" /><span class="post">'+(opts.post||"")+'</span>';
+    var input = f.querySelector("input");
+    input.value = v;
+    if (opts.ph) input.placeholder = opts.ph;
+    if (opts.data) Object.keys(opts.data).forEach(function(k){ input.dataset[k]=opts.data[k]; });
+    return f;
+  }
+
+  // ── Build a facility card ────────────────────────────────────────────────────
+  var stackEl = document.getElementById("stack");
+
+  function buildCard(cat){
+    var card = el("section", "fac");
+    card.dataset.fac = cat.id;
+
+    // bar
+    var bar = el("div", "fac-bar");
+    bar.setAttribute("role","button");
+    bar.tabIndex = 0;
+    var ic = el("div","fac-ic");
+    ic.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+FAC_ICONS[cat.id]+'</svg>';
+    var idCol = el("div","fac-id",'<div class="nm">'+cat.name+'</div>');
+    var snap = el("div","fac-snap","");
+    var vis = el("div","vis");
+    vis.innerHTML = '<span class="vlab">Shown</span><button type="button" class="switch on" data-fac="'+cat.id+'" data-role="vis" role="switch" aria-checked="true" title="Show or hide this facility type in the booking flow"><span class="knob"></span></button>';
+    var chev = el("div","chev",ARROW);
+    bar.appendChild(ic); bar.appendChild(idCol); bar.appendChild(snap); bar.appendChild(vis); bar.appendChild(chev);
+
+    // panel
+    var panel = el("div","panel");
+    var pin = el("div","panel-in");
+
+    // -- wage column
+    var wcol = el("div","");
+    wcol.appendChild(el("div","ctrl-h",'<span class="n">1</span>Hourly wage'));
+    var wblock = el("div","wage-block");
+    var wbig = el("div","big");
+    var wf = moneyField({ value: state.wage[cat.id], post:"/ hr", cls:"", step:"0.5", data:{ fac:cat.id, role:"wage" } });
+    wbig.appendChild(wf);
+    wblock.appendChild(wbig);
+    wblock.appendChild(el("div","hint","Billed against the labor hours each visit takes. Raising it lifts every quote for this facility proportionally."));
+    wcol.appendChild(wblock);
+    pin.appendChild(wcol);
+
+    // -- minimums column
+    var mcol = el("div","min-wrap");
+    mcol.appendChild(el("div","ctrl-h",'<span class="n">2</span>Monthly minimums'));
+    var mgrid = el("div","min-grid");
+
+    function group(title, sub, freqs){
+      var g = el("div","min-grp");
+      g.appendChild(el("div","gh",title+' <small>'+sub+'</small>'));
+      var rows = el("div","min-row");
+      freqs.forEach(function(f){
+        var line = el("div","min-line");
+        var val = state.min[cat.id][f.id] || 0;
+        if (!val) line.classList.add("off");
+        line.appendChild(el("span","fl",f.short));
+        var mf = moneyField({ value: val, post:"/ mo", allowBlank:true, ph:"None", step:"5", data:{ fac:cat.id, role:"min", freq:f.id } });
+        line.appendChild(mf);
+        rows.appendChild(line);
+      });
+      g.appendChild(rows);
+      return g;
+    }
+    mgrid.appendChild(group("Monthly visits","floor", FREQS.filter(function(f){return f.grp==="monthly";})));
+    mgrid.appendChild(group("Weekly visits","floor", FREQS.filter(function(f){return f.grp==="weekly";})));
+    mcol.appendChild(mgrid);
+    mcol.appendChild(el("div","min-note","Leave a field blank for no floor — that frequency then bills at pure labor cost."));
+    pin.appendChild(mcol);
+
+    // -- preview (full width)
+    var prev = el("div","prev");
+    var ptoggle = el("button","prev-toggle");
+    ptoggle.type = "button";
+    ptoggle.innerHTML = '<span class="pt-h">'+EYE+'Quote preview</span><span class="prev-chev">'+ARROW+'</span>';
+    prev.appendChild(ptoggle);
+
+    var pbody = el("div","prev-body");
+    var ptop = el("div","prev-top");
+    ptop.innerHTML =
+      '<div class="prev-ctl">' +
+        '<div class="seg-pills win" data-role="window">' +
+          '<button type="button" data-w="after" class="on">After hours</button>' +
+          '<button type="button" data-w="business">Business hours</button>' +
+        '</div>' +
+        '<div class="seg-pills" data-role="density">' +
+          '<button type="button" data-d="low">Light</button>' +
+          '<button type="button" data-d="medium" class="on">Standard</button>' +
+          '<button type="button" data-d="high">Busy</button>' +
+        '</div>' +
+        '<select data-role="sqft">' +
+          '<option value="3000">3,000 sq ft</option>' +
+          '<option value="5000" selected>5,000 sq ft</option>' +
+          '<option value="7000">7,000 sq ft</option>' +
+          '<option value="9000">9,000 sq ft</option>' +
+        '</select>' +
+        '<select data-role="hours">' +
+          '<option value="1">1 hr / day</option>' +
+          '<option value="2" selected>2 hrs / day</option>' +
+          '<option value="3">3 hrs / day</option>' +
+          '<option value="4">4 hrs / day</option>' +
+        '</select>' +
+      '</div>';
+    prev.dataset.win = "after";
+    pbody.appendChild(ptop);
+
+    var tbl = el("table","ptab");
+    tbl.innerHTML =
+      '<thead><tr><th>Frequency</th><th>Per visit</th><th>Labor / mo</th><th>Your min</th><th>Billed / mo</th></tr></thead>' +
+      '<tbody></tbody>';
+    pbody.appendChild(tbl);
+    pbody.appendChild(el("div","prev-basis",""));
+    pbody.appendChild(el("div","prev-foot",'<span class="sw"></span> Highlighted rows are lifted to your monthly minimum.'));
+    prev.appendChild(pbody);
+    pin.appendChild(prev);
+
+    panel.appendChild(pin);
+    card.appendChild(bar);
+    card.appendChild(panel);
+
+    // open/close the whole card
+    bar.addEventListener("click", function(e){ if (e.target.closest(".switch")) return; card.classList.toggle("open"); });
+    // open/close the quote preview
+    ptoggle.addEventListener("click", function(){ prev.classList.toggle("open"); });
+
+    stackEl.appendChild(card);
+    return card;
+  }
+
+  CATEGORIES.forEach(buildCard);
+
+  // ── Render computed displays for one facility ────────────────────────────────
+  function renderFac(catId){
+    var cat = CATEGORIES.filter(function(c){return c.id===catId;})[0];
+    var card = stackEl.querySelector('[data-fac="'+catId+'"]');
+    var pv = state._prev[catId];
+    var wage = state.wage[catId] || 0;
+
+    // snapshot in the bar
+    var mins = FREQS.map(function(f){ return state.min[catId][f.id]||0; }).filter(function(x){return x>0;});
+    var minLo = mins.length ? Math.min.apply(null,mins) : 0;
+    var minHi = mins.length ? Math.max.apply(null,mins) : 0;
+    var sample = price(cat, "1x-week", 5000, "medium", wage);
+    var snap = card.querySelector(".fac-snap");
+    snap.innerHTML =
+      '<div class="sv">$'+ (wage % 1 ? wage.toFixed(2) : wage) +' <span>/ hr</span></div>';
+
+    // preview table
+    var prevEl = card.querySelector(".prev");
+    var pvWindow = pv.window;
+    prevEl.dataset.win = pvWindow;
+    var tbody = card.querySelector(".ptab tbody");
+    tbody.innerHTML = "";
+    PREV_FREQS.forEach(function(fid){
+      var p = pvWindow === "business"
+        ? priceHours(catId, fid, pv.hours, wage)
+        : price(cat, fid, pv.sqft, pv.density, wage);
+      var tr = el("tr", p.floored ? "floored":"");
+      tr.innerHTML =
+        '<td>'+FREQ_BY[fid].label+'</td>' +
+        '<td><span class="pv">$'+money(p.perVisit)+'</span></td>' +
+        '<td><span class="raw">$'+money(p.rawMonthly)+'</span></td>' +
+        '<td>'+(p.minimum? '$'+money(p.minimum) : '<span class="dash">—</span>')+'</td>' +
+        '<td><span class="bill">$'+money(p.monthly)+'</span>'+(p.floored?'<span class="flag">min</span>':'')+'</td>';
+      tbody.appendChild(tr);
+    });
+
+    var wlabel = (wage % 1 ? wage.toFixed(2) : wage);
+    var basis = card.querySelector(".prev-basis");
+    if (pvWindow === "business"){
+      basis.innerHTML = 'Day cleaning — <b>'+pv.hours+' hr/day × $'+wlabel+'/hr</b> per visit, the same at every frequency; monthly is hours × visits × wage, floored to your minimum.';
+    } else {
+      basis.innerHTML = 'After hours — <b>'+pv.sqft.toLocaleString()+' sq ft ÷ production rate × $'+wlabel+'/hr</b> per visit; monthly floored to your minimum.';
+    }
+  }
+
+  function renderAll(){ CATEGORIES.forEach(function(c){ renderFac(c.id); }); }
+
+  // visibility helpers
+  function updateVis(catId){
+    var card = stackEl.querySelector('[data-fac="'+catId+'"]');
+    if (!card) return;
+    var on = state.shown[catId];
+    var sw = card.querySelector(".switch[data-role='vis']");
+    var lab = card.querySelector(".vis .vlab");
+    if (sw){ sw.classList.toggle("on", on); sw.setAttribute("aria-checked", on?"true":"false"); }
+    if (lab) lab.textContent = on ? "Shown" : "Hidden";
+    card.classList.toggle("hidden-fac", !on);
+  }
+  var shownCountEl = document.getElementById("shownCount");
+  function updateCount(){
+    var n = CATEGORIES.filter(function(c){ return state.shown[c.id]; }).length;
+    shownCountEl.textContent = n + " of 12 shown";
+  }
+
+  renderAll();
+  CATEGORIES.forEach(updateVis);
+  updateCount();
+
+  // ── Dirty / save state ───────────────────────────────────────────────────────
+  var statusEl = document.getElementById("status");
+  var statusText = document.getElementById("statusText");
+  var saveBtn = document.getElementById("saveBtn");
+  function setDirty(d){
+    dirty = d;
+    statusEl.className = "status " + (d ? "dirty" : "saved");
+    statusText.innerHTML = d ? "<b>Unsaved changes</b> — review and save your rate card" : "All changes saved";
+    saveBtn.disabled = !d;
+  }
+  setDirty(false);
+
+  // ── Input handling (event delegation, no re-render of inputs) ────────────────
+  stackEl.addEventListener("input", function(e){
+    var t = e.target;
+    if (t.tagName !== "INPUT") return;
+    var fac = t.dataset.fac, role = t.dataset.role;
+    var val = t.value === "" ? 0 : Math.max(0, parseFloat(t.value)||0);
+    if (role === "wage"){
+      state.wage[fac] = val;
+    } else if (role === "min"){
+      state.min[fac][t.dataset.freq] = val;
+      var line = t.closest(".min-line");
+      if (line) line.classList.toggle("off", !val);
+    }
+    renderFac(fac);
+    setDirty(true);
+  });
+
+  // density + sqft + window + hours + visibility controls
+  stackEl.addEventListener("click", function(e){
+    // visibility switch
+    var sw = e.target.closest(".switch[data-role='vis']");
+    if (sw){
+      e.stopPropagation();
+      var vf = sw.dataset.fac;
+      state.shown[vf] = !state.shown[vf];
+      updateVis(vf); updateCount(); setDirty(true);
+      return;
+    }
+    // time-window toggle
+    var wbtn = e.target.closest(".seg-pills[data-role='window'] button");
+    if (wbtn){
+      e.stopPropagation();
+      var wcard = wbtn.closest(".fac"), wfac = wcard.dataset.fac;
+      wcard.querySelectorAll(".seg-pills[data-role='window'] button").forEach(function(b){ b.classList.toggle("on", b===wbtn); });
+      state._prev[wfac].window = wbtn.dataset.w;
+      renderFac(wfac);
+      return;
+    }
+    // density
+    var btn = e.target.closest(".seg-pills[data-role='density'] button");
+    if (btn){
+      e.stopPropagation();
+      var card = btn.closest(".fac"), fac = card.dataset.fac;
+      card.querySelectorAll(".seg-pills[data-role='density'] button").forEach(function(b){ b.classList.toggle("on", b===btn); });
+      state._prev[fac].density = btn.dataset.d;
+      renderFac(fac);
+    }
+  });
+  stackEl.addEventListener("change", function(e){
+    var sel = e.target.closest("select[data-role='sqft']");
+    if (sel){
+      var card = sel.closest(".fac"), fac = card.dataset.fac;
+      state._prev[fac].sqft = parseInt(sel.value,10);
+      renderFac(fac);
+      return;
+    }
+    var hs = e.target.closest("select[data-role='hours']");
+    if (hs){
+      var hcard = hs.closest(".fac"), hfac = hcard.dataset.fac;
+      state._prev[hfac].hours = parseInt(hs.value,10);
+      renderFac(hfac);
+    }
+  });
+
+  // ── Toolbar actions ──────────────────────────────────────────────────────────
+  var defWage = document.getElementById("defWage");
+  document.getElementById("applyAll").addEventListener("click", function(){
+    var w = Math.max(0, parseFloat(defWage.value)||0);
+    CATEGORIES.forEach(function(c){
+      state.wage[c.id] = w;
+      var inp = stackEl.querySelector('[data-fac="'+c.id+'"] input[data-role="wage"]');
+      if (inp) inp.value = (w % 1 ? w : w);
+    });
+    renderAll();
+    setDirty(true);
+    toast("Applied $"+ (w % 1 ? w.toFixed(2):w) +"/hr to all 12");
+  });
+
+  document.getElementById("resetAll").addEventListener("click", function(){
+    if (!confirm("Reset every facility's wage and minimums back to Anago defaults?")) return;
+    state = freshState();
+    // re-sync inputs
+    CATEGORIES.forEach(function(c){
+      var card = stackEl.querySelector('[data-fac="'+c.id+'"]');
+      var wInp = card.querySelector('input[data-role="wage"]');
+      if (wInp) wInp.value = DEFAULT_WAGE;
+      FREQS.forEach(function(f){
+        var mi = card.querySelector('input[data-role="min"][data-freq="'+f.id+'"]');
+        if (mi){ mi.value = DEFAULT_MIN[f.id] || ""; var ln=mi.closest(".min-line"); if(ln) ln.classList.toggle("off", !DEFAULT_MIN[f.id]); }
+      });
+      card.querySelectorAll(".seg-pills[data-role='density'] button").forEach(function(b){ b.classList.toggle("on", b.dataset.d==="medium"); });
+      var sq = card.querySelector("select[data-role='sqft']"); if (sq) sq.value = "5000";
+      card.querySelectorAll(".seg-pills[data-role='window'] button").forEach(function(b){ b.classList.toggle("on", b.dataset.w==="after"); });
+      var hr = card.querySelector("select[data-role='hours']"); if (hr) hr.value = "2";
+    });
+    defWage.value = DEFAULT_WAGE;
+    renderAll();
+    CATEGORIES.forEach(updateVis);
+    updateCount();
+    setDirty(true);
+    toast("Reset to Anago defaults");
+  });
+
+  document.getElementById("collapseAll").addEventListener("click", function(){
+    var anyOpen = stackEl.querySelector(".fac.open");
+    stackEl.querySelectorAll(".fac").forEach(function(c){ c.classList.toggle("open", !anyOpen); });
+    this.textContent = anyOpen ? "Expand all" : "Collapse all";
+  });
+
+  saveBtn.addEventListener("click", function(){
+    var out = { wage: state.wage, min: state.min, shown: state.shown };
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(out)); } catch(e){}
+    setDirty(false);
+    toast("Rate card saved");
+  });
+
+  // ── Toast ────────────────────────────────────────────────────────────────────
+  var toastEl = document.getElementById("toast"), toastText = document.getElementById("toastText"), toastT;
+  function toast(msg){
+    toastText.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastT);
+    toastT = setTimeout(function(){ toastEl.classList.remove("show"); }, 2200);
+  }
+
+  // open the first card by default
+  var first = stackEl.querySelector(".fac");
+  if (first) first.classList.add("open");
+
+})();
+</script>
+</body>
+</html>

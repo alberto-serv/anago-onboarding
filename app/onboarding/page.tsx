@@ -32,6 +32,7 @@ import {
   Plus,
   X,
   ArrowUpRight,
+  ExternalLink,
   Sparkles,
 } from "lucide-react"
 
@@ -131,9 +132,6 @@ export default function OnboardingPage() {
   const [leadTimeHours, setLeadTimeHours] = useState("24")
   const [blockedDates, setBlockedDates] = useState<string[]>([])
   const [newBlockedDate, setNewBlockedDate] = useState("")
-
-  // --- Finish state ---
-  const [pageIsLive, setPageIsLive] = useState(false)
 
   const saveProgress = (next: number) => {
     try {
@@ -780,59 +778,50 @@ export default function OnboardingPage() {
         {currentContent === "finish" && (
           <div className="space-y-10" style={{ animation: "fade-up 0.4s ease-out" }}>
             <div className="space-y-3">
-              <h1 className="text-[clamp(2rem,4vw,3.25rem)] font-bold">You&apos;re All Set</h1>
-              <p className="text-lg text-muted-foreground max-w-xl">
-                Review your details below, then make your booking page live.
-              </p>
+              <h1 className="text-[clamp(2rem,4vw,3.25rem)] font-bold">You&apos;re All Set!</h1>
+              <p className="text-lg text-muted-foreground max-w-xl">Here are a few things you can do next.</p>
             </div>
 
-            <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm divide-y divide-border">
-              {[
-                { icon: User, label: "Account", value: `${identityData.firstName} ${identityData.lastName}` },
-                { icon: Mail, label: "Email", value: identityData.email },
-                { icon: Building2, label: "Business", value: businessDetails.businessName },
-                { icon: Phone, label: "Contact", value: businessDetails.contactPhone },
-                { icon: MapPin, label: "Address", value: businessDetails.businessAddress },
-                {
-                  icon: Clock,
-                  label: "Open days",
-                  value:
-                    DAYS.filter((d) => workingHours[d.key].enabled)
-                      .map((d) => d.label.slice(0, 3))
-                      .join(", ") || "None",
-                },
-                {
-                  icon: CalendarCheck,
-                  label: "Lead time",
-                  value: leadTimeHours === "0" ? "No minimum" : `${leadTimeHours} hours`,
-                },
-              ].map(({ icon: Icon, label, value }) => (
-                <div key={label} className="flex items-center gap-4 py-3.5 first:pt-0 last:pb-0">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted flex-shrink-0">
-                    <Icon className="h-4 w-4 text-muted-foreground" />
+            <div className="space-y-4">
+              {/* Setup Recurring Subscriptions */}
+              <div className="bg-card border border-border rounded-2xl p-6 sm:p-8">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 flex-shrink-0">
+                    <CreditCard className="h-6 w-6 text-primary" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-muted-foreground">{label}</p>
-                    <p className="text-sm font-medium truncate">{value}</p>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold mb-1">Setup Recurring Subscriptions</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      You will receive a link shortly to complete setup (Bank, EIN, SSN needed). Set up Stripe Connect to
+                      offer subscriptions, offer coupon codes and get paid fast.
+                    </p>
                   </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Schedule Training */}
+              <div
+                className="group bg-card border border-border rounded-2xl p-6 sm:p-8 cursor-pointer hover:shadow-md hover:border-primary/30 transition-all duration-200"
+                onClick={() => window.open("https://meetings.hubspot.com/annee-belanger", "_blank")}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/10 flex-shrink-0">
+                    <CalendarCheck className="h-6 w-6 text-secondary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold mb-1">Schedule Training</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Book a session with our team to learn how to get the most out of SERV.
+                    </p>
+                  </div>
+                  <ExternalLink className="h-5 w-5 text-muted-foreground/40 group-hover:text-primary transition-colors flex-shrink-0 mt-1" />
+                </div>
+              </div>
             </div>
 
-            {pageIsLive && (
-              <div className="flex items-center gap-3 rounded-2xl border border-green-600/20 bg-green-600/5 p-4">
-                <Check className="h-5 w-5 text-green-600 flex-shrink-0" strokeWidth={2.5} />
-                <p className="text-sm font-medium text-foreground">Your booking page is now live.</p>
-              </div>
-            )}
-
-            {!pageIsLive && (
-              <PrimaryButton onClick={() => setPageIsLive(true)} icon={Rocket}>
-                Make my page live
-              </PrimaryButton>
-            )}
-
-            <PrimaryButton onClick={() => router.push("/success")}>Finish</PrimaryButton>
+            <PrimaryButton onClick={() => router.push("/success")} icon={Rocket}>
+              Done
+            </PrimaryButton>
             <BackButton />
             <NeedHelpLink />
           </div>

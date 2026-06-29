@@ -7,7 +7,7 @@ export default function Page() {
   const router = useRouter()
 
   useEffect(() => {
-    router.push("/onboarding")
+    router.push("/location")
   }, [router])
 
   return null

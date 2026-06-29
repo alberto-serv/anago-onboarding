@@ -58,9 +58,6 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
   return (
     <>
       <div className={cx(styles.wrap, styles.head)}>
-        <div className={styles.crumb}>
-          <b>Pricing</b> &nbsp;/&nbsp; Rate Card Setup
-        </div>
         <h1>Set Your Rates</h1>
         <p>
           Set the <strong>hourly wage</strong> your crews bill at and the <strong>monthly minimums</strong> that protect

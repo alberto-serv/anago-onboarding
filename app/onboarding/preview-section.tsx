@@ -30,6 +30,11 @@ export function PreviewSection({ onContinue, onBack }: PreviewSectionProps) {
   const [mode, setMode] = useState<"preview" | "edit">("preview")
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop")
 
+  const goTo = (next: "preview" | "edit") => {
+    setMode(next)
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
   return (
     <div className={styles.page}>
       {/* Anago fonts — React hoists these to <head>; scoped usage keeps them out of the rest of the app. */}
@@ -40,6 +45,11 @@ export function PreviewSection({ onContinue, onBack }: PreviewSectionProps) {
       />
 
       {mode === "preview" ? (
+        <>
+        <div className={cx(styles.wrap, styles.head)}>
+          <h1>Your Booking Page</h1>
+          <p>This is the live page your customers see. Select Edit to adjust your pricing.</p>
+        </div>
         <div className={styles.wrap}>
           {/* device toggle sits above the framed preview */}
           <div className={styles.previewBarIn}>
@@ -77,7 +87,7 @@ export function PreviewSection({ onContinue, onBack }: PreviewSectionProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setMode("edit")}
+                onClick={() => goTo("edit")}
                 className="flex-1 h-14 text-base font-medium border border-border rounded-2xl bg-transparent hover:bg-muted transition-colors"
               >
                 <Pencil className="mr-2 h-4 w-4" />
@@ -110,6 +120,7 @@ export function PreviewSection({ onContinue, onBack }: PreviewSectionProps) {
             </div>
           </div>
         </div>
+        </>
       ) : (
         <>
           <PricingEditor rc={rc} />
@@ -117,7 +128,7 @@ export function PreviewSection({ onContinue, onBack }: PreviewSectionProps) {
             <div className={styles.actions}>
               <Button
                 type="button"
-                onClick={() => setMode("preview")}
+                onClick={() => goTo("preview")}
                 className="w-full h-14 text-base font-medium bg-foreground hover:bg-foreground/90 text-background shadow-sm hover:shadow-md transition-all duration-200 rounded-2xl"
               >
                 <Check className="mr-2 h-5 w-5" />

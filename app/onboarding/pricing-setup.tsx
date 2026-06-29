@@ -202,8 +202,8 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                       </div>
                       <div className={styles.minGrid}>
                         {[
-                          { title: "Monthly visits", freqs: monthlyFreqs },
                           { title: "Weekly visits", freqs: weeklyFreqs },
+                          { title: "Monthly visits", freqs: monthlyFreqs },
                         ].map((group) => (
                           <div key={group.title} className={styles.minGrp}>
                             <div className={styles.gh}>

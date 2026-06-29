@@ -58,14 +58,15 @@
 .crumb b {
   color: var(--orange-deep);
 }
+/* Page titles match the rest of the app (Outfit, bold, tracking-tight),
+   not the Anago display face — the booking-page mockup keeps that. */
 .head h1 {
-  font-family: var(--display);
-  text-transform: uppercase;
-  color: var(--navy);
-  font-size: clamp(38px, 5.4vw, 58px);
-  line-height: 0.92;
-  letter-spacing: 0.01em;
-  font-weight: 400;
+  font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  color: var(--foreground, #0b0b0c);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  font-weight: 700;
   margin: 0;
 }
 .head p {

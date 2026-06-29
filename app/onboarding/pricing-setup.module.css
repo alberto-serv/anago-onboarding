@@ -13,7 +13,7 @@
   --sky: #dcf1f9;
   --ink: #193253;
   --body: #41506a;
-  --muted: #8893a6;
+  --ag-muted: #8893a6;
   --line: #e7e3da;
   --line-soft: #efece4;
   --paper: #f7f6f1;
@@ -52,7 +52,7 @@
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: var(--muted);
+  color: var(--ag-muted);
   margin-bottom: 16px;
 }
 .crumb b {
@@ -94,7 +94,7 @@
   font-weight: 800;
   letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ag-muted);
 }
 .wagebox {
   display: flex;
@@ -118,13 +118,13 @@
 }
 .moneyfield .pre {
   padding: 0 2px 0 12px;
-  color: var(--muted);
+  color: var(--ag-muted);
   font-weight: 700;
   font-size: 15px;
 }
 .moneyfield .post {
   padding: 0 12px 0 4px;
-  color: var(--muted);
+  color: var(--ag-muted);
   font-size: 12.5px;
   font-weight: 600;
   white-space: nowrap;
@@ -289,7 +289,7 @@
   gap: 7px;
   margin-top: 6px;
   font-size: 11.5px;
-  color: var(--muted);
+  color: var(--ag-muted);
   font-weight: 600;
 }
 .facId .tag .dot {
@@ -310,7 +310,7 @@
   color: var(--navy);
 }
 .facSnap .sv span {
-  color: var(--muted);
+  color: var(--ag-muted);
   font-weight: 600;
 }
 .chev {
@@ -355,7 +355,7 @@
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ag-muted);
   min-width: 46px;
   text-align: right;
 }
@@ -426,7 +426,7 @@
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ag-muted);
   margin-bottom: 14px;
   display: flex;
   align-items: center;
@@ -467,7 +467,7 @@
 }
 .wageBlock .hint {
   font-size: 12.5px;
-  color: var(--muted);
+  color: var(--ag-muted);
   line-height: 1.5;
   margin-top: 12px;
 }
@@ -488,7 +488,7 @@
   gap: 8px;
 }
 .minGrp .gh small {
-  color: var(--muted);
+  color: var(--ag-muted);
   font-weight: 600;
   font-size: 11px;
 }
@@ -523,7 +523,7 @@
 }
 .minNote {
   font-size: 12px;
-  color: var(--muted);
+  color: var(--ag-muted);
   margin-top: 14px;
   line-height: 1.5;
 }
@@ -692,7 +692,7 @@
 }
 .sqftField .sqftSuffix {
   font-size: 11.5px;
-  color: var(--muted);
+  color: var(--ag-muted);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -718,7 +718,7 @@
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ag-muted);
   text-align: right;
   padding: 0 0 10px;
 }
@@ -741,7 +741,7 @@
   font-weight: 600;
 }
 .ptab td .raw {
-  color: var(--muted);
+  color: var(--ag-muted);
 }
 .ptab td .bill {
   font-weight: 800;
@@ -770,7 +770,7 @@
 }
 .prevFoot {
   font-size: 11.5px;
-  color: var(--muted);
+  color: var(--ag-muted);
   margin-top: 14px;
   display: flex;
   align-items: center;
@@ -847,7 +847,7 @@
 .deviceTab {
   border: none;
   background: none;
-  color: var(--muted);
+  color: var(--ag-muted);
   width: 38px;
   height: 32px;
   border-radius: 22px;
@@ -993,7 +993,7 @@
 }
 .sfStepSub {
   margin: 12px auto 0;
-  color: var(--muted);
+  color: var(--ag-muted);
   font-size: 14px;
   max-width: 52ch;
 }
@@ -1071,7 +1071,7 @@
 }
 .sfWindowCopy {
   font-size: 13.5px;
-  color: var(--muted);
+  color: var(--ag-muted);
   margin-top: 4px;
 }
 .sfBadge {
@@ -1114,7 +1114,7 @@
 .sfHourPill span {
   font-size: 11px;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--ag-muted);
 }
 .sfHourPill.sel {
   border-color: var(--navy);
@@ -1140,7 +1140,7 @@
 .sfSliderValue span {
   font-size: 15px;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--ag-muted);
 }
 .sfSlider {
   width: 100%;
@@ -1174,7 +1174,7 @@
   justify-content: space-between;
   margin-top: 10px;
   font-size: 12px;
-  color: var(--muted);
+  color: var(--ag-muted);
 }
 
 /* frequency */
@@ -1184,7 +1184,7 @@
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ag-muted);
   margin-bottom: 14px;
 }
 .sfEyebrowMt {
@@ -1227,7 +1227,7 @@
 }
 .sfFreqSub {
   font-size: 11px;
-  color: var(--muted);
+  color: var(--ag-muted);
 }
 .sfFreqPill.sel {
   border-color: var(--navy);
@@ -1311,7 +1311,7 @@
 .sfDensityCopy {
   display: block;
   font-size: 13px;
-  color: var(--muted);
+  color: var(--ag-muted);
   margin-top: 4px;
 }
 
@@ -1394,7 +1394,7 @@
 }
 .sfTrustText {
   font-size: 12.5px;
-  color: var(--muted);
+  color: var(--ag-muted);
   margin-top: 3px;
 }
 

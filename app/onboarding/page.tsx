@@ -81,9 +81,9 @@ export default function OnboardingPage() {
 
   // --- Identity confirmation state ---
   const [identityData, setIdentityData] = useState({
-    firstName: "Christian",
-    lastName: "Betancourt",
-    email: "christian@franchiseplaybook.com",
+    firstName: "Adam",
+    lastName: "Povlitz",
+    email: "adam@anagocleaning.com",
     locationName: "",
     phone: "(555) 123-4567",
   })
@@ -105,11 +105,11 @@ export default function OnboardingPage() {
   // --- Business details state ---
   const [businessDetails, setBusinessDetails] = useState({
     companyName: "",
-    businessName: "Voda Cleaning & Restoration",
+    businessName: "Anago Cleaning Systems",
     contactPhone: "(555) 123-4567",
     supportPhone: "",
-    supportEmail: "support@myvoda.com",
-    businessAddress: "7400 Lockport Pl # J, Lorton, VA 22079",
+    supportEmail: "support@anagocleaning.com",
+    businessAddress: "20 SW 27th Ave. Suite 300 | Pompano Beach, FL 33069",
     cardName: "",
     cardNumber: "",
     cardExpiry: "",

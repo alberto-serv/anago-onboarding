@@ -156,8 +156,7 @@ export default function LocationPage() {
                             locationName === loc.label ? "opacity-100" : "opacity-0"
                           )}
                         />
-                        <span className="flex-1">{loc.label}</span>
-                        <span className="text-xs text-muted-foreground tabular-nums">{loc.phone}</span>
+                        {loc.label}
                       </CommandItem>
                     ))}
                   </CommandList>
@@ -222,7 +221,7 @@ export default function LocationPage() {
                 muted
                 playsInline
                 className="w-full h-auto block"
-                src="/Voda.mp4"
+                src="/anago-booking.webm"
               />
             </div>
           </div>

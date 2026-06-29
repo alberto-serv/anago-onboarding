@@ -54,9 +54,8 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
         </div>
         <h1>Set Your Rates</h1>
         <p>
-          Two numbers drive every instant quote your customers see. Set the <strong>hourly wage</strong> your crews bill
-          at and the <strong>monthly minimums</strong> that protect small jobs — for each of your 12 facility types.
-          Production rates and packages are set by Anago corporate and stay fixed.
+          Set the <strong>hourly wage</strong> your crews bill at and the <strong>monthly minimums</strong> that protect
+          small jobs — for each of your 12 facility types.
         </p>
       </div>
 
@@ -130,10 +129,6 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                   </div>
                   <div className={styles.facId}>
                     <div className={styles.nm}>{cat.name}</div>
-                    <span className={styles.tag}>
-                      <span className={styles.dot} />
-                      {cat.profile} profile
-                    </span>
                   </div>
                   <div className={styles.facSnap}>
                     <div className={styles.sv}>

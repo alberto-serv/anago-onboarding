@@ -3,19 +3,19 @@
 import { useRouter } from "next/navigation"
 import { PhoneVerification } from "@/components/phone-verification"
 import Image from "next/image"
-import { FileText, Zap, Clock, CreditCard, Building2, User, ShieldCheck } from "lucide-react"
+import { DollarSign, Clock, CreditCard, Building2, User, ShieldCheck } from "lucide-react"
 
 export default function LoginPage() {
   const router = useRouter()
 
   const handleVerified = () => {
     const prefilledData = {
-      customerName: "Christian Betancourt",
-      businessName: "Voda Cleaning & Restoration",
-      phoneNumber: "(703) 520-5060",
-      mailingAddress: "7400 Lockport Pl # J, Lorton, VA 22079",
-      email: "christian@franchiseplaybook.com",
-      website: "https://myvoda.com/",
+      customerName: "Adam Povlitz",
+      businessName: "Anago Cleaning Systems",
+      phoneNumber: "(555) 123-4567",
+      mailingAddress: "20 SW 27th Ave. Suite 300 | Pompano Beach, FL 33069",
+      email: "adam@anagocleaning.com",
+      website: "https://anagocleaning.com/",
       crm: "Workiz",
       locationName: localStorage.getItem("locationName") || "",
     }
@@ -24,8 +24,8 @@ export default function LoginPage() {
   }
 
   const readyItems = [
-    { icon: FileText, label: "List of services & pricing" },
-    { icon: Zap, label: "CRM login credentials" },
+    { icon: Building2, label: "Facility types you serve" },
+    { icon: DollarSign, label: "Hourly wage and minimums" },
     { icon: Clock, label: "About 5 minutes" },
   ]
 
@@ -146,7 +146,7 @@ export default function LoginPage() {
                 muted
                 playsInline
                 className="w-full h-auto block"
-                src="/Voda.mp4"
+                src="/anago-booking.webm"
               />
             </div>
           </div>

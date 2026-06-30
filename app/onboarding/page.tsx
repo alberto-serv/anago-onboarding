@@ -64,14 +64,11 @@ const DAYS = [
 type DayKey = (typeof DAYS)[number]["key"]
 type DayHours = { enabled: boolean; start: string; end: string }
 
-const STEP_CONTENT = [
-  "confirm-identity",
-  "review-website",
-  "confirm-business",
-  "scheduling",
-  "finish",
-] as const
-type StepContent = (typeof STEP_CONTENT)[number]
+type StepContent = "confirm-identity" | "review-website" | "confirm-business" | "scheduling" | "finish"
+
+// Active onboarding steps. "scheduling" is built below but intentionally left out
+// of the flow for now — drop it back in here to re-enable.
+const STEP_CONTENT: StepContent[] = ["confirm-identity", "review-website", "confirm-business", "finish"]
 
 export default function OnboardingPage() {
   const router = useRouter()

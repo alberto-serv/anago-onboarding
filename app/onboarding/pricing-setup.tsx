@@ -331,8 +331,8 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                           <thead>
                             <tr>
                               <th>Frequency</th>
-                              <th>Per visit</th>
                               <th>Billed / mo</th>
+                              <th>Per visit</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -346,11 +346,11 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                                 <tr key={fid} className={cx(p.floored && styles.floored)}>
                                   <td>{FREQ_BY[fid].label}</td>
                                   <td>
-                                    <span className={styles.pv}>${rangeStr(p.perVisitLow, p.perVisitHigh)}</span>
-                                  </td>
-                                  <td>
                                     <span className={styles.bill}>${rangeStr(p.monthlyLow, p.monthlyHigh)}</span>
                                     {p.floored && <span className={styles.flag}>min</span>}
+                                  </td>
+                                  <td>
+                                    <span className={styles.pv}>${rangeStr(p.perVisitLow, p.perVisitHigh)}</span>
                                   </td>
                                 </tr>
                               )

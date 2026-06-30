@@ -115,7 +115,7 @@ export function PreviewSection({ onContinue, onBack }: PreviewSectionProps) {
       <div className={styles.wrap}>
         <div className={styles.actions}>
           <div className="flex gap-3">
-            {mode === "preview" && (
+            {mode === "preview" ? (
               <Button
                 type="button"
                 variant="outline"
@@ -124,6 +124,16 @@ export function PreviewSection({ onContinue, onBack }: PreviewSectionProps) {
               >
                 <SlidersHorizontal className="mr-2 h-5 w-5" />
                 Edit pricing
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => goTo("preview")}
+                className="h-14 px-5 text-base font-medium border border-border rounded-2xl bg-transparent hover:bg-muted transition-colors shrink-0"
+              >
+                <Eye className="mr-2 h-5 w-5" />
+                Back to preview
               </Button>
             )}
             <Button

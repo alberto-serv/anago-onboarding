@@ -114,13 +114,26 @@ export function PreviewSection({ onContinue, onBack }: PreviewSectionProps) {
       {/* host-app Continue / Back (shared by both modes) */}
       <div className={styles.wrap}>
         <div className={styles.actions}>
-          <Button
-            onClick={onContinue}
-            className="w-full h-14 text-base font-medium bg-foreground hover:bg-foreground/90 text-background shadow-sm hover:shadow-md transition-all duration-200 rounded-2xl"
-          >
-            <Check className="mr-2 h-5 w-5" />
-            Continue
-          </Button>
+          <div className="flex gap-3">
+            {mode === "preview" && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => goTo("edit")}
+                className="h-14 px-5 text-base font-medium border border-border rounded-2xl bg-transparent hover:bg-muted transition-colors shrink-0"
+              >
+                <SlidersHorizontal className="mr-2 h-5 w-5" />
+                Edit pricing
+              </Button>
+            )}
+            <Button
+              onClick={onContinue}
+              className="flex-1 h-14 text-base font-medium bg-foreground hover:bg-foreground/90 text-background shadow-sm hover:shadow-md transition-all duration-200 rounded-2xl"
+            >
+              <Check className="mr-2 h-5 w-5" />
+              Continue
+            </Button>
+          </div>
           <Button
             type="button"
             variant="outline"

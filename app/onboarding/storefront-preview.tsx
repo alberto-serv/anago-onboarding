@@ -12,6 +12,7 @@ import {
   SQFT_MIN,
   SQFT_MAX,
   SQFT_STEP,
+  orderedCategories,
   densityImage,
   densityOptionsFor,
   priceHours,
@@ -36,7 +37,8 @@ function StepHeader({ step, title, subtitle }: { step: number; title: string; su
 }
 
 export function StorefrontPreview({ rc }: { rc: RateCard }) {
-  const visible = CATEGORIES.filter((c) => rc.shown[c.id]).sort((a, b) => a.shortName.localeCompare(b.shortName))
+  // Honor the franchisee's drag-to-reorder choice from the editor.
+  const visible = orderedCategories(rc.order).filter((c) => rc.shown[c.id])
 
   const [selectedId, setSelectedId] = useState<string>(visible[0]?.id ?? CATEGORIES[0].id)
   const [timeWindow, setTimeWindow] = useState<"after" | "business">("after")

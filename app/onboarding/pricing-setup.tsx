@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, type ChangeEvent } from "react"
-import { ChevronDown, Eye, Download, RotateCcw } from "lucide-react"
+import { ChevronDown, Eye, Download, RotateCcw, GripVertical } from "lucide-react"
 import styles from "./pricing-setup.module.css"
 import {
   CATEGORIES,
@@ -9,6 +9,7 @@ import {
   FREQS,
   FREQ_BY,
   PREV_FREQS,
+  orderedCategories,
   type Density,
   type RateCard,
   type Win,
@@ -24,9 +25,6 @@ const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).j
 // A number input keeps a leading zero the user types (e.g. "025") because it
 // parses back to the same value the field already holds, so React never re-syncs
 // the DOM. Normalize the field text in place before parsing.
-// Facility cards are listed alphabetically by name in the editor.
-const EDITOR_CATEGORIES = [...CATEGORIES].sort((a, b) => a.name.localeCompare(b.name))
-
 const cleanNum = (e: ChangeEvent<HTMLInputElement>): string => {
   const cleaned = e.target.value.replace(/^0+(?=\d)/, "")
   if (cleaned !== e.target.value) e.currentTarget.value = cleaned
@@ -45,12 +43,15 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
   const [prev, setPrev] = useState<Record<string, PrevState>>(() =>
     Object.fromEntries(CATEGORIES.map((c) => [c.id, { sqft: 10000, density: "medium" as Density, window: "after" as Win, hours: 2 }])),
   )
-  const [openCards, setOpenCards] = useState<Record<string, boolean>>({ [EDITOR_CATEGORIES[0].id]: true })
+  const [openCards, setOpenCards] = useState<Record<string, boolean>>(() => ({ [rc.order[0]]: true }))
   const [openPrev, setOpenPrev] = useState<Record<string, boolean>>({})
+  // Id of the card currently being dragged for reordering (null when idle).
+  const [dragId, setDragId] = useState<string | null>(null)
 
   const patchPrev = (id: string, patch: Partial<PrevState>) =>
     setPrev((p) => ({ ...p, [id]: { ...p[id], ...patch } }))
 
+  const cards = orderedCategories(rc.order)
   const shownCount = CATEGORIES.filter((c) => rc.shown[c.id]).length
 
   const resetAll = () => {
@@ -98,9 +99,9 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
           </button>
         </div>
 
-        {/* facility cards */}
+        {/* facility cards — drag the handle to reorder; the order drives the storefront preview */}
         <div className={styles.stack}>
-          {EDITOR_CATEGORIES.map((cat) => {
+          {cards.map((cat) => {
             const isOpen = !!openCards[cat.id]
             const isShown = rc.shown[cat.id]
             const pv = prev[cat.id]
@@ -108,14 +109,24 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
             const weeklyFreqs = FREQS.filter((f) => f.grp === "weekly")
 
             return (
-              <section key={cat.id} className={cx(styles.fac, isOpen && styles.open, !isShown && styles.hiddenFac)}>
+              <section
+                key={cat.id}
+                className={cx(styles.fac, isOpen && styles.open, !isShown && styles.hiddenFac, dragId === cat.id && styles.dragging)}
+                onDragOver={(e) => {
+                  if (!dragId || dragId === cat.id) return
+                  e.preventDefault()
+                  e.dataTransfer.dropEffect = "move"
+                  rc.reorder(dragId, cat.id)
+                }}
+                onDrop={(e) => e.preventDefault()}
+              >
                 {/* bar */}
                 <div
                   className={styles.facBar}
                   role="button"
                   tabIndex={0}
                   onClick={(e) => {
-                    if ((e.target as HTMLElement).closest(`.${styles.switch}`)) return
+                    if ((e.target as HTMLElement).closest(`.${styles.switch}, .${styles.facDrag}`)) return
                     setOpenCards((o) => ({ ...o, [cat.id]: !o[cat.id] }))
                   }}
                   onKeyDown={(e) => {
@@ -125,6 +136,23 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                     }
                   }}
                 >
+                  <span
+                    className={styles.facDrag}
+                    draggable
+                    role="button"
+                    aria-label={`Drag to reorder ${cat.name}`}
+                    title="Drag to reorder"
+                    onClick={(e) => e.stopPropagation()}
+                    onDragStart={(e) => {
+                      setDragId(cat.id)
+                      e.dataTransfer.effectAllowed = "move"
+                      // Firefox requires data to be set for a drag to start.
+                      e.dataTransfer.setData("text/plain", cat.id)
+                    }}
+                    onDragEnd={() => setDragId(null)}
+                  >
+                    <GripVertical strokeWidth={2} />
+                  </span>
                   <div className={styles.facIc}>
                     <svg
                       viewBox="0 0 24 24"

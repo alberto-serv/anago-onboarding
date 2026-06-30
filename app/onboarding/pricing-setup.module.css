@@ -246,7 +246,7 @@
 }
 .facBar {
   display: grid;
-  grid-template-columns: auto 1fr auto auto auto;
+  grid-template-columns: auto auto 1fr auto auto auto;
   gap: 20px;
   align-items: center;
   padding: 18px 22px;
@@ -255,6 +255,31 @@
   background: none;
   border: none;
   text-align: left;
+}
+.facDrag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  margin: -8px -6px -8px -10px;
+  color: #b4bccb;
+  cursor: grab;
+  touch-action: none;
+  transition: color 0.15s;
+}
+.facDrag:hover {
+  color: var(--navy);
+}
+.facDrag:active {
+  cursor: grabbing;
+}
+.facDrag svg {
+  width: 19px;
+  height: 19px;
+}
+.fac.dragging {
+  opacity: 0.55;
+  box-shadow: var(--shadow);
 }
 .facIc {
   width: 50px;
@@ -337,7 +362,7 @@
 }
 @media (max-width: 720px) {
   .facBar {
-    grid-template-columns: auto 1fr auto auto;
+    grid-template-columns: auto auto 1fr auto auto;
   }
   .facSnap {
     display: none;

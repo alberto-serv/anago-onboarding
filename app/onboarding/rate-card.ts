@@ -35,6 +35,18 @@ export const CATEGORIES: Category[] = [
 ]
 export const CATEGORY_BY: Record<string, Category> = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]))
 
+// Default facility ordering — alphabetical by name. The franchisee can override
+// this by dragging cards in the editor; the chosen order drives both the editor
+// and the storefront preview.
+function defaultOrder(): string[] {
+  return [...CATEGORIES].sort((a, b) => a.name.localeCompare(b.name)).map((c) => c.id)
+}
+
+// Resolve an order list (ids) into Categories, dropping any unknown ids.
+export function orderedCategories(order: string[]): Category[] {
+  return order.map((id) => CATEGORY_BY[id]).filter(Boolean)
+}
+
 export const FAC_ICONS: Record<string, string> = {
   office:
     '<path d="M5 21V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v17"/><path d="M16 9h3a1 1 0 0 1 1 1v11"/><path d="M3 21h18"/><path d="M8 7h2M8 11h2M8 15h2"/>',
@@ -283,16 +295,21 @@ function freshMin(): MinMap {
 function freshShown(): ShownMap {
   return Object.fromEntries(CATEGORIES.map((c) => [c.id, true]))
 }
+function freshOrder(): string[] {
+  return defaultOrder()
+}
 
 export interface RateCard {
   wage: WageMap
   min: MinMap
   shown: ShownMap
+  order: string[]
   defWage: number
   setDefWage: (n: number) => void
   setCatWage: (id: string, val: number) => void
   setCatMin: (id: string, freq: string, val: number) => void
   toggleShown: (id: string) => void
+  reorder: (fromId: string, toId: string) => void
   applyAll: () => void
   resetAll: () => void
   minimumFor: (id: string, freq: string) => number
@@ -302,6 +319,7 @@ export function useRateCard(): RateCard {
   const [wage, setWage] = useState<WageMap>(freshWage)
   const [min, setMin] = useState<MinMap>(freshMin)
   const [shown, setShown] = useState<ShownMap>(freshShown)
+  const [order, setOrder] = useState<string[]>(freshOrder)
   const [defWage, setDefWage] = useState<number>(DEFAULT_WAGE)
   const [hydrated, setHydrated] = useState(false)
 
@@ -318,6 +336,15 @@ export function useRateCard(): RateCard {
           return next
         })
         if (saved.shown) setShown((s) => ({ ...s, ...saved.shown }))
+        if (Array.isArray(saved.order)) {
+          // Keep only known ids, then append any categories the saved order is
+          // missing (e.g. new facility types) in their default position.
+          setOrder((ord) => {
+            const valid = saved.order.filter((id: unknown) => typeof id === "string" && CATEGORY_BY[id])
+            const missing = ord.filter((id) => !valid.includes(id))
+            return [...valid, ...missing]
+          })
+        }
       }
     } catch {
       // ignore malformed storage
@@ -328,11 +355,11 @@ export function useRateCard(): RateCard {
   useEffect(() => {
     if (!hydrated) return
     try {
-      localStorage.setItem(STORE_KEY, JSON.stringify({ wage, min, shown }))
+      localStorage.setItem(STORE_KEY, JSON.stringify({ wage, min, shown, order }))
     } catch {
       // ignore storage failures
     }
-  }, [wage, min, shown, hydrated])
+  }, [wage, min, shown, order, hydrated])
 
   const setCatWage = useCallback((id: string, val: number) => setWage((w) => ({ ...w, [id]: val })), [])
   const setCatMin = useCallback(
@@ -340,14 +367,26 @@ export function useRateCard(): RateCard {
     [],
   )
   const toggleShown = useCallback((id: string) => setShown((s) => ({ ...s, [id]: !s[id] })), [])
+  // Move `fromId` so it lands in `toId`'s current slot.
+  const reorder = useCallback((fromId: string, toId: string) => {
+    if (fromId === toId) return
+    setOrder((ord) => {
+      const next = ord.filter((id) => id !== fromId)
+      const idx = next.indexOf(toId)
+      if (idx === -1) return ord
+      next.splice(idx, 0, fromId)
+      return next
+    })
+  }, [])
   const applyAll = useCallback(() => setWage(Object.fromEntries(CATEGORIES.map((c) => [c.id, defWage]))), [defWage])
   const resetAll = useCallback(() => {
     setWage(freshWage())
     setMin(freshMin())
     setShown(freshShown())
+    setOrder(freshOrder())
     setDefWage(DEFAULT_WAGE)
   }, [])
   const minimumFor = useCallback((id: string, freq: string) => min[id]?.[freq] || 0, [min])
 
-  return { wage, min, shown, defWage, setDefWage, setCatWage, setCatMin, toggleShown, applyAll, resetAll, minimumFor }
+  return { wage, min, shown, order, defWage, setDefWage, setCatWage, setCatMin, toggleShown, reorder, applyAll, resetAll, minimumFor }
 }

@@ -51,7 +51,7 @@ export function StorefrontPreview({ rc }: { rc: RateCard }) {
   // If the selected facility was just hidden in the editor, fall back to the first visible one.
   const selectedCat = visible.find((c) => c.id === selectedId) ?? visible[0] ?? CATEGORIES[0]
   const businessHours = timeWindow === "business"
-  const wage = rc.wage[selectedCat.id] || 0
+  const wage = rc.wage || 0
   const minimum = rc.min[selectedCat.id]?.[frequency] || 0
 
   const pricing = businessHours

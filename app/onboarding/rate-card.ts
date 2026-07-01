@@ -47,6 +47,58 @@ export function orderedCategories(order: string[]): Category[] {
   return order.map((id) => CATEGORY_BY[id]).filter(Boolean)
 }
 
+// ─── Special services / add-ons ───────────────────────────────────────────────
+// Corporate-defined add-on menu. The franchisee sets one price per add-on, shared
+// across every facility type. Add-ons are quote-only — they never surface on the
+// storefront preview or public booking page.
+export interface AddOn {
+  id: string
+  name: string
+  desc: string
+  medicalOnly?: boolean // Terminal cleaning applies to Medical Office facilities only.
+}
+
+export const ADDONS: AddOn[] = [
+  {
+    id: "deep",
+    name: "Deep & Detailed Cleaning",
+    desc: "An intensive, heavy-duty service targeting spaces that require more than standard maintenance to eliminate built-up grime, dust, and deep residues.",
+  },
+  {
+    id: "floorCare",
+    name: "Premier Carpet and Floor Care",
+    desc: "Specialized restoration for all flooring types, including carpet, tile, laminates, hardwood, concrete, and marble. Ensuring long-term durability and a professional finish for every unique environment.",
+  },
+  {
+    id: "windows",
+    name: "Window Cleaning Services",
+    desc: "Precision glass detailing to eliminate smudges, weather residue, and film buildup for perfectly clear views.",
+  },
+  {
+    id: "porter",
+    name: "Porter Services",
+    desc: "Continuous daytime maintenance to keep high-traffic facility areas clean, sanitized, and consistently presentable.",
+  },
+  {
+    id: "misc",
+    name: "Miscellaneous Services",
+    desc: "Our service portfolio also includes specialized solutions for unique facility requirements, such as upholstery cleaning, pressure washing, refrigerator cleaning, emergency cleaning, and electrostatic disinfection.",
+  },
+  {
+    id: "terminal",
+    name: "Medical Office Terminal Cleaning",
+    desc: "Clinical-grade disinfection and infection control protocols designed specifically for healthcare environments to ensure strict regulatory compliance and patient safety.",
+    medicalOnly: true,
+  },
+]
+
+// Add-ons that can be offered on a given facility type — terminal cleaning is
+// Medical Office only, so it's excluded from every other facility's picker.
+export function addOnsFor(catId: string): AddOn[] {
+  return ADDONS.filter((a) => !a.medicalOnly || catId === "medical")
+}
+
+
 export const FAC_ICONS: Record<string, string> = {
   office:
     '<path d="M5 21V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v17"/><path d="M16 9h3a1 1 0 0 1 1 1v11"/><path d="M3 21h18"/><path d="M8 7h2M8 11h2M8 15h2"/>',
@@ -282,52 +334,75 @@ export const rangeStr = (low: number, high: number) =>
   low === high ? low.toLocaleString() : `${low.toLocaleString()} – $${high.toLocaleString()}`
 
 // ─── Shared state hook ────────────────────────────────────────────────────────
-export type WageMap = Record<string, number>
 export type MinMap = Record<string, Record<string, number>>
 export type ShownMap = Record<string, boolean>
+// Add-on prices, keyed by add-on id and shared across all facilities.
+// 0 means the franchisee hasn't set a price yet.
+export type AddOnPriceMap = Record<string, number>
+// Which add-ons each facility type offers, keyed by facility id then add-on id.
+export type AddOnEnabledMap = Record<string, Record<string, boolean>>
 
-function freshWage(): WageMap {
-  return Object.fromEntries(CATEGORIES.map((c) => [c.id, DEFAULT_WAGE]))
-}
 function freshMin(): MinMap {
   return Object.fromEntries(CATEGORIES.map((c) => [c.id, Object.fromEntries(FREQS.map((f) => [f.id, DEFAULT_MIN[f.id]]))]))
 }
 function freshShown(): ShownMap {
   return Object.fromEntries(CATEGORIES.map((c) => [c.id, true]))
 }
+function freshAddOnPrice(): AddOnPriceMap {
+  return Object.fromEntries(ADDONS.map((a) => [a.id, 0]))
+}
+// Every applicable add-on is offered by default; franchisees turn off the ones they don't provide.
+function freshAddOnEnabled(): AddOnEnabledMap {
+  return Object.fromEntries(CATEGORIES.map((c) => [c.id, Object.fromEntries(addOnsFor(c.id).map((a) => [a.id, true]))]))
+}
 function freshOrder(): string[] {
   return defaultOrder()
 }
 
 export interface RateCard {
-  wage: WageMap
+  // Hourly wage is a single global setting applied to every facility type.
+  wage: number
   min: MinMap
   shown: ShownMap
   order: string[]
-  defWage: number
-  setDefWage: (n: number) => void
-  setCatWage: (id: string, val: number) => void
+  addOnPrice: AddOnPriceMap
+  addOnEnabled: AddOnEnabledMap
+  setWage: (n: number) => void
   setCatMin: (id: string, freq: string, val: number) => void
+  setAddOnPrice: (addOnId: string, val: number) => void
+  toggleAddOn: (catId: string, addOnId: string) => void
   toggleShown: (id: string) => void
   reorder: (fromId: string, toId: string) => void
-  applyAll: () => void
+  sortAlphabetical: () => void
+  restorePrevOrder: () => void
+  hasPrevOrder: boolean
   resetAll: () => void
   minimumFor: (id: string, freq: string) => number
 }
 
 export function useRateCard(): RateCard {
-  const [wage, setWage] = useState<WageMap>(freshWage)
+  const [wage, setWage] = useState<number>(DEFAULT_WAGE)
   const [min, setMin] = useState<MinMap>(freshMin)
   const [shown, setShown] = useState<ShownMap>(freshShown)
   const [order, setOrder] = useState<string[]>(freshOrder)
-  const [defWage, setDefWage] = useState<number>(DEFAULT_WAGE)
+  const [addOnPrice, setAddOnPriceState] = useState<AddOnPriceMap>(freshAddOnPrice)
+  const [addOnEnabled, setAddOnEnabled] = useState<AddOnEnabledMap>(freshAddOnEnabled)
+  // Snapshot of the order taken just before an alphabetical sort, so the user can
+  // undo the sort and return to their prior arrangement. null when there's nothing to restore.
+  const [prevOrder, setPrevOrder] = useState<string[] | null>(null)
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null")
-      if (saved && saved.wage && saved.min) {
-        setWage((w) => ({ ...w, ...saved.wage }))
+      if (saved && saved.wage != null && saved.min) {
+        // Newer saves store a single number; older saves stored a per-facility map —
+        // collapse the map to its first value since wage is now global.
+        if (typeof saved.wage === "number") setWage(saved.wage)
+        else if (typeof saved.wage === "object") {
+          const vals = Object.values(saved.wage).filter((n): n is number => typeof n === "number")
+          if (vals.length) setWage(vals[0])
+        }
         setMin((m) => {
           const next = { ...m }
           CATEGORIES.forEach((c) => {
@@ -336,6 +411,24 @@ export function useRateCard(): RateCard {
           return next
         })
         if (saved.shown) setShown((s) => ({ ...s, ...saved.shown }))
+        if (saved.addOnPrice) {
+          setAddOnPriceState((p) => {
+            const next = { ...p }
+            ADDONS.forEach((a) => {
+              if (typeof saved.addOnPrice[a.id] === "number") next[a.id] = saved.addOnPrice[a.id]
+            })
+            return next
+          })
+        }
+        if (saved.addOnEnabled) {
+          setAddOnEnabled((en) => {
+            const next = { ...en }
+            CATEGORIES.forEach((c) => {
+              if (saved.addOnEnabled[c.id]) next[c.id] = { ...next[c.id], ...saved.addOnEnabled[c.id] }
+            })
+            return next
+          })
+        }
         if (Array.isArray(saved.order)) {
           // Keep only known ids, then append any categories the saved order is
           // missing (e.g. new facility types) in their default position.
@@ -355,21 +448,31 @@ export function useRateCard(): RateCard {
   useEffect(() => {
     if (!hydrated) return
     try {
-      localStorage.setItem(STORE_KEY, JSON.stringify({ wage, min, shown, order }))
+      localStorage.setItem(STORE_KEY, JSON.stringify({ wage, min, shown, order, addOnPrice, addOnEnabled }))
     } catch {
       // ignore storage failures
     }
-  }, [wage, min, shown, order, hydrated])
+  }, [wage, min, shown, order, addOnPrice, addOnEnabled, hydrated])
 
-  const setCatWage = useCallback((id: string, val: number) => setWage((w) => ({ ...w, [id]: val })), [])
   const setCatMin = useCallback(
     (id: string, freq: string, val: number) => setMin((m) => ({ ...m, [id]: { ...m[id], [freq]: val } })),
     [],
   )
+  const setAddOnPrice = useCallback(
+    (addOnId: string, val: number) => setAddOnPriceState((p) => ({ ...p, [addOnId]: val })),
+    [],
+  )
+  const toggleAddOn = useCallback(
+    (catId: string, addOnId: string) =>
+      setAddOnEnabled((en) => ({ ...en, [catId]: { ...en[catId], [addOnId]: !en[catId]?.[addOnId] } })),
+    [],
+  )
   const toggleShown = useCallback((id: string) => setShown((s) => ({ ...s, [id]: !s[id] })), [])
-  // Move `fromId` so it lands in `toId`'s current slot.
+  // Move `fromId` so it lands in `toId`'s current slot. A manual drag replaces any
+  // pre-sort snapshot — "restore previous order" only makes sense right after a sort.
   const reorder = useCallback((fromId: string, toId: string) => {
     if (fromId === toId) return
+    setPrevOrder(null)
     setOrder((ord) => {
       const next = ord.filter((id) => id !== fromId)
       const idx = next.indexOf(toId)
@@ -378,15 +481,28 @@ export function useRateCard(): RateCard {
       return next
     })
   }, [])
-  const applyAll = useCallback(() => setWage(Object.fromEntries(CATEGORIES.map((c) => [c.id, defWage]))), [defWage])
+  // Sort every facility A→Z by name, snapshotting the current order so it can be restored.
+  const sortAlphabetical = useCallback(() => {
+    const sorted = [...order].sort((a, b) => CATEGORY_BY[a].name.localeCompare(CATEGORY_BY[b].name))
+    if (sorted.every((id, i) => id === order[i])) return // already sorted — nothing to snapshot
+    setPrevOrder(order)
+    setOrder(sorted)
+  }, [order])
+  const restorePrevOrder = useCallback(() => {
+    if (!prevOrder) return
+    setOrder(prevOrder)
+    setPrevOrder(null)
+  }, [prevOrder])
   const resetAll = useCallback(() => {
-    setWage(freshWage())
+    setWage(DEFAULT_WAGE)
     setMin(freshMin())
     setShown(freshShown())
     setOrder(freshOrder())
-    setDefWage(DEFAULT_WAGE)
+    setAddOnPriceState(freshAddOnPrice())
+    setAddOnEnabled(freshAddOnEnabled())
+    setPrevOrder(null)
   }, [])
   const minimumFor = useCallback((id: string, freq: string) => min[id]?.[freq] || 0, [min])
 
-  return { wage, min, shown, order, defWage, setDefWage, setCatWage, setCatMin, toggleShown, reorder, applyAll, resetAll, minimumFor }
+  return { wage, min, shown, order, addOnPrice, addOnEnabled, setWage, setCatMin, setAddOnPrice, toggleAddOn, toggleShown, reorder, sortAlphabetical, restorePrevOrder, hasPrevOrder: prevOrder !== null, resetAll, minimumFor }
 }

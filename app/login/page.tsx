@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import { PhoneVerification } from "@/components/phone-verification"
 import Image from "next/image"
-import { DollarSign, Clock, CreditCard, Building2, User, ShieldCheck } from "lucide-react"
+import { DollarSign, Clock, Building2 } from "lucide-react"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -27,13 +27,6 @@ export default function LoginPage() {
     { icon: Building2, label: "Facility types you serve" },
     { icon: DollarSign, label: "Hourly wage and minimums" },
     { icon: Clock, label: "About 5 minutes" },
-  ]
-
-  const paymentItems = [
-    { icon: Building2, label: "Bank routing & account number" },
-    { icon: CreditCard, label: "EIN (Employer Identification Number)" },
-    { icon: User, label: "Owner name, DOB & email" },
-    { icon: ShieldCheck, label: "SSN last 4 digits" },
   ]
 
   return (
@@ -62,7 +55,7 @@ export default function LoginPage() {
             unrecognizedPhones={["000"]}
           />
 
-          {/* Preparation checklists */}
+          {/* Preparation checklist */}
           <div className="flex flex-col sm:flex-row gap-3">
             {/* Have these ready */}
             <div className="flex-1 rounded-2xl border border-border/60 p-5">
@@ -71,23 +64,6 @@ export default function LoginPage() {
               </p>
               <div className="space-y-3">
                 {readyItems.map((item) => (
-                  <div key={item.label} className="flex items-center gap-3">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/[0.07] flex-shrink-0">
-                      <item.icon className="w-3.5 h-3.5 text-primary/80" />
-                    </div>
-                    <span className="text-[13px] text-foreground/80">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* For payment setup */}
-            <div className="flex-1 rounded-2xl border border-border/60 p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70 mb-3.5">
-                For payment setup (optional)
-              </p>
-              <div className="space-y-3">
-                {paymentItems.map((item) => (
                   <div key={item.label} className="flex items-center gap-3">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/[0.07] flex-shrink-0">
                       <item.icon className="w-3.5 h-3.5 text-primary/80" />

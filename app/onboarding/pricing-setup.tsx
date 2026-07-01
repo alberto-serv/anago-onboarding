@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, type ChangeEvent } from "react"
-import { ChevronDown, Eye, Download, RotateCcw, GripVertical } from "lucide-react"
+import { ChevronDown, Eye, RotateCcw, GripVertical, ArrowDownAZ, Undo2 } from "lucide-react"
 import styles from "./pricing-setup.module.css"
 import {
   CATEGORIES,
@@ -9,6 +9,8 @@ import {
   FREQS,
   FREQ_BY,
   PREV_FREQS,
+  ADDONS,
+  addOnsFor,
   orderedCategories,
   type Density,
   type RateCard,
@@ -55,7 +57,7 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
   const shownCount = CATEGORIES.filter((c) => rc.shown[c.id]).length
 
   const resetAll = () => {
-    if (!window.confirm("Reset wage, minimums and visibility back to Anago defaults?")) return
+    if (!window.confirm("Reset wage, minimums, add-on prices and visibility back to Anago defaults?")) return
     rc.resetAll()
   }
 
@@ -64,15 +66,15 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
       <div className={cx(styles.wrap, styles.head)}>
         <h1>Set Your Rates</h1>
         <p>
-          Set the <strong>hourly wage</strong> your crews bill at and the <strong>monthly minimums</strong> that protect
-          small jobs — for each of your 12 facility types.
+          Set one <strong>hourly wage</strong> your crews bill at, then the <strong>monthly minimums</strong> that
+          protect small jobs — for each of your 12 facility types.
         </p>
       </div>
 
       <div className={styles.wrap}>
         {/* toolbar */}
         <div className={styles.toolbar}>
-          <span className={styles.tlab}>Default hourly wage</span>
+          <span className={styles.tlab}>Hourly wage</span>
           <div className={styles.wagebox}>
             <div className={cx(styles.moneyfield, styles.sm)}>
               <span className={styles.pre}>$</span>
@@ -81,17 +83,24 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                 min={0}
                 step={0.5}
                 inputMode="decimal"
-                value={rc.defWage}
-                onChange={(e) => rc.setDefWage(num(cleanNum(e)))}
+                value={rc.wage}
+                onChange={(e) => rc.setWage(num(cleanNum(e)))}
               />
               <span className={styles.post}>/ hr</span>
             </div>
-            <button type="button" className={styles.btnApply} onClick={rc.applyAll}>
-              <Download strokeWidth={2.1} />
-              Apply to all 12
-            </button>
+            <span className={styles.wageNote}>Applies to all 12 facility types</span>
           </div>
           <div className={styles.grow} />
+          <button type="button" className={styles.lnk} onClick={rc.sortAlphabetical}>
+            <ArrowDownAZ strokeWidth={2} />
+            Sort A–Z
+          </button>
+          {rc.hasPrevOrder && (
+            <button type="button" className={styles.lnk} onClick={rc.restorePrevOrder}>
+              <Undo2 strokeWidth={2} />
+              Restore previous order
+            </button>
+          )}
           <span className={styles.countPill}>{shownCount} of 12 shown</span>
           <button type="button" className={styles.lnk} onClick={resetAll}>
             <RotateCcw strokeWidth={2} />
@@ -169,7 +178,7 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                   </div>
                   <div className={styles.facSnap}>
                     <div className={styles.sv}>
-                      ${fmtWage(rc.wage[cat.id])} <span>/ hr</span>
+                      ${fmtWage(rc.wage)} <span>/ hr</span>
                     </div>
                   </div>
                   <div className={styles.vis}>
@@ -196,37 +205,10 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                 {/* panel */}
                 <div className={styles.panel}>
                   <div className={styles.panelIn}>
-                    {/* wage column */}
-                    <div>
-                      <div className={styles.ctrlH}>
-                        <span className={styles.n}>1</span>Hourly wage
-                      </div>
-                      <div className={styles.wageBlock}>
-                        <div className={styles.big}>
-                          <div className={styles.moneyfield}>
-                            <span className={styles.pre}>$</span>
-                            <input
-                              type="number"
-                              min={0}
-                              step={0.5}
-                              inputMode="decimal"
-                              value={rc.wage[cat.id]}
-                              onChange={(e) => rc.setCatWage(cat.id, num(cleanNum(e)))}
-                            />
-                            <span className={styles.post}>/ hr</span>
-                          </div>
-                        </div>
-                        <div className={styles.hint}>
-                          Billed against the labor hours each visit takes. Raising it lifts every quote for this facility
-                          proportionally.
-                        </div>
-                      </div>
-                    </div>
-
                     {/* minimums column */}
                     <div>
                       <div className={styles.ctrlH}>
-                        <span className={styles.n}>2</span>Monthly minimums
+                        <span className={styles.n}>1</span>Monthly minimums
                       </div>
                       <div className={styles.minGrid}>
                         {[
@@ -265,6 +247,42 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                       </div>
                       <div className={styles.minNote}>
                         Leave a field blank for no floor — that frequency then bills at pure labor cost.
+                      </div>
+                    </div>
+
+                    {/* add-ons offered by this facility */}
+                    <div>
+                      <div className={styles.ctrlH}>
+                        <span className={styles.n}>2</span>Add-ons offered
+                      </div>
+                      <div className={styles.addonPickList}>
+                        {addOnsFor(cat.id).map((a) => {
+                          const on = !!rc.addOnEnabled[cat.id]?.[a.id]
+                          const price = rc.addOnPrice[a.id] || 0
+                          return (
+                            <div key={a.id} className={cx(styles.addonPickRow, !on && styles.off)}>
+                              <div className={styles.addonPickInfo}>
+                                <span className={styles.addonPickName}>{a.name}</span>
+                                <span className={styles.addonPickPrice}>
+                                  {price ? `$${fmtWage(price)}` : "Price not set"}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                className={cx(styles.switch, on && styles.on)}
+                                role="switch"
+                                aria-checked={on}
+                                aria-label={`Offer ${a.name} for ${cat.name}`}
+                                onClick={() => rc.toggleAddOn(cat.id, a.id)}
+                              >
+                                <span className={styles.knob} />
+                              </button>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <div className={styles.minNote}>
+                        Choose which add-ons this facility offers. Set each add-on&apos;s price below.
                       </div>
                     </div>
 
@@ -368,8 +386,8 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                               const minimum = rc.min[cat.id][fid] || 0
                               const p =
                                 pv.window === "business"
-                                  ? priceHours(fid, pv.hours, rc.wage[cat.id] || 0, minimum)
-                                  : priceProduction(cat, fid, pv.sqft, pv.density, rc.wage[cat.id] || 0, minimum)
+                                  ? priceHours(fid, pv.hours, rc.wage || 0, minimum)
+                                  : priceProduction(cat, fid, pv.sqft, pv.density, rc.wage || 0, minimum)
                               return (
                                 <tr key={fid} className={cx(p.floored && styles.floored)}>
                                   <td>{FREQ_BY[fid].label}</td>
@@ -391,7 +409,7 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                             <>
                               Day cleaning —{" "}
                               <b>
-                                {pv.hours} hr/day × ${fmtWage(rc.wage[cat.id] || 0)}/hr
+                                {pv.hours} hr/day × ${fmtWage(rc.wage || 0)}/hr
                               </b>{" "}
                               per visit, the same at every frequency; monthly is hours × visits × wage, floored to your
                               minimum.
@@ -400,7 +418,7 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                             <>
                               After hours —{" "}
                               <b>
-                                {pv.sqft.toLocaleString()} sq ft ÷ production rate × ${fmtWage(rc.wage[cat.id] || 0)}/hr
+                                {pv.sqft.toLocaleString()} sq ft ÷ production rate × ${fmtWage(rc.wage || 0)}/hr
                               </b>{" "}
                               per visit; monthly floored to your minimum.
                             </>
@@ -416,6 +434,52 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
               </section>
             )
           })}
+        </div>
+
+        {/* special services / add-ons — one price per add-on, shared across all facility types */}
+        <div className={styles.addonSection}>
+          <div className={styles.addonHead}>
+            <h2>Add-on pricing</h2>
+            <p>
+              Set the price you charge for each add-on. Prices are shared across all facility types; choose which
+              facilities offer each add-on from the cards above. Add-ons are for your quotes only — they don&apos;t
+              appear on your public booking page.
+            </p>
+          </div>
+          <div className={styles.addonList}>
+            {ADDONS.map((a) => {
+              const price = rc.addOnPrice[a.id] || 0
+              return (
+                <div key={a.id} className={styles.addonRow}>
+                  <div className={styles.addonInfo}>
+                    <div className={styles.addonName}>
+                      {a.name}
+                      {a.medicalOnly && <span className={styles.addonTag}>Medical only</span>}
+                    </div>
+                    <div className={styles.addonDesc}>{a.desc}</div>
+                    {a.medicalOnly && (
+                      <div className={styles.addonNote}>Applies to Medical Office facilities only.</div>
+                    )}
+                  </div>
+                  <div className={styles.addonPrice}>
+                    <div className={styles.moneyfield}>
+                      <span className={styles.pre}>$</span>
+                      <input
+                        type="number"
+                        min={0}
+                        step={5}
+                        inputMode="decimal"
+                        placeholder="Not set"
+                        aria-label={`Price for ${a.name}`}
+                        value={price ? price : ""}
+                        onChange={(e) => rc.setAddOnPrice(a.id, num(cleanNum(e)))}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
     </>

@@ -31,7 +31,6 @@ import {
   User,
   Plus,
   X,
-  ArrowUpRight,
   ExternalLink,
 } from "lucide-react"
 import { PreviewSection } from "./preview-section"
@@ -107,13 +106,8 @@ export default function OnboardingPage() {
     supportPhone: "",
     supportEmail: "support@anagocleaning.com",
     businessAddress: "20 SW 27th Ave. Suite 300 | Pompano Beach, FL 33069",
-    cardName: "",
-    cardNumber: "",
-    cardExpiry: "",
-    cardCvc: "",
   })
   const [supportPhoneDifferent, setSupportPhoneDifferent] = useState(false)
-  const [showPaymentForm, setShowPaymentForm] = useState(false)
 
   // --- Scheduling state ---
   const [workingHours, setWorkingHours] = useState<Record<DayKey, DayHours>>({
@@ -298,70 +292,6 @@ export default function OnboardingPage() {
               )}
             </div>
 
-            {/* Team members & billing admin */}
-            <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-7">
-              <div className="space-y-3">
-                <h2 className="text-2xl font-bold">Team Members &amp; Billing Admin</h2>
-                <p className="text-base text-muted-foreground">
-                  Invite teammates and assign who can manage billing for your account.
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-muted/40 p-5 sm:p-6 space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  What a Billing Admin can do
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3.5">
-                  {[
-                    "View and pay invoices",
-                    "Update card & payout account",
-                    "Manage subscription & plan",
-                    "Add or remove billing users",
-                  ].map((item) => (
-                    <div key={item} className="flex items-center gap-2.5 text-sm text-foreground">
-                      <Check className="h-4 w-4 text-primary flex-shrink-0" strokeWidth={2.5} />
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Current Billing Admin
-                </p>
-                <div className="flex items-center gap-3 rounded-xl border border-border p-4 sm:p-5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted flex-shrink-0">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate">
-                      {identityData.firstName} {identityData.lastName}
-                      <span className="font-normal text-muted-foreground ml-1.5">(you)</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">{identityData.email}</p>
-                  </div>
-                  <span className="text-xs font-semibold text-primary flex-shrink-0">Billing admin</span>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Add team members or change the billing admin role from your Stripe dashboard under{" "}
-                  <span className="font-medium text-foreground">Settings → Team</span>.
-                </p>
-                <a
-                  href="https://dashboard.stripe.com/settings/team"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 h-12 px-6 rounded-xl border-[1.5px] border-primary text-primary text-sm font-semibold hover:bg-primary/5 transition-colors"
-                >
-                  Manage team in Stripe
-                  <ArrowUpRight className="h-4 w-4" />
-                </a>
-              </div>
-            </div>
-
             <PrimaryButton onClick={handleNext}>Continue</PrimaryButton>
 
             <p className="text-sm text-center text-muted-foreground">
@@ -479,100 +409,6 @@ export default function OnboardingPage() {
                   onChange={(e) => setBusinessDetails((prev) => ({ ...prev, businessAddress: e.target.value }))}
                   className="h-11 rounded-xl text-base"
                 />
-              </div>
-            </div>
-
-            {/* Billing */}
-            <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground flex items-center gap-2 mb-3">
-                  <CreditCard className="h-3.5 w-3.5" />
-                  Billing
-                </Label>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Your SERV plan starts at{" "}
-                  <span className="font-semibold text-foreground">$250.00/month and $50 per additional territory</span>.
-                </p>
-              </div>
-
-              <div className="pt-1 border-t border-border">
-                <button
-                  type="button"
-                  onClick={() => setShowPaymentForm((v) => !v)}
-                  className="flex items-center gap-2 pt-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-full text-left"
-                >
-                  <CreditCard className="h-3.5 w-3.5" />
-                  {showPaymentForm ? "Hide card details" : "Add a card on file"}
-                  <span className="ml-auto text-xs text-muted-foreground/60">{showPaymentForm ? "▲" : "▼"}</span>
-                </button>
-
-                {showPaymentForm && (
-                  <div className="space-y-4 mt-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-muted-foreground">Name on Card</Label>
-                      <Input
-                        value={businessDetails.cardName}
-                        onChange={(e) => setBusinessDetails((prev) => ({ ...prev, cardName: e.target.value }))}
-                        placeholder="Full name as it appears on card"
-                        className="h-11 rounded-xl text-base"
-                        autoComplete="cc-name"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-muted-foreground">Card Number</Label>
-                      <Input
-                        value={businessDetails.cardNumber}
-                        onChange={(e) => {
-                          const digits = e.target.value.replace(/\D/g, "").slice(0, 19)
-                          const formatted = digits.replace(/(.{4})/g, "$1 ").trim()
-                          setBusinessDetails((prev) => ({ ...prev, cardNumber: formatted }))
-                        }}
-                        placeholder="1234 5678 9012 3456"
-                        inputMode="numeric"
-                        autoComplete="cc-number"
-                        className="h-11 rounded-xl text-base font-mono"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium text-muted-foreground">Expiry (MM/YY)</Label>
-                        <Input
-                          value={businessDetails.cardExpiry}
-                          onChange={(e) => {
-                            const digits = e.target.value.replace(/\D/g, "").slice(0, 4)
-                            const formatted = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits
-                            setBusinessDetails((prev) => ({ ...prev, cardExpiry: formatted }))
-                          }}
-                          placeholder="MM/YY"
-                          inputMode="numeric"
-                          autoComplete="cc-exp"
-                          className="h-11 rounded-xl text-base font-mono"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium text-muted-foreground">CVC</Label>
-                        <Input
-                          value={businessDetails.cardCvc}
-                          onChange={(e) => {
-                            const digits = e.target.value.replace(/\D/g, "").slice(0, 4)
-                            setBusinessDetails((prev) => ({ ...prev, cardCvc: digits }))
-                          }}
-                          placeholder="123"
-                          inputMode="numeric"
-                          autoComplete="cc-csc"
-                          className="h-11 rounded-xl text-base font-mono"
-                        />
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-muted-foreground/70 flex items-center gap-1.5">
-                      <Check className="h-3 w-3 text-green-600" />
-                      Your card is encrypted and stored securely.
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
 

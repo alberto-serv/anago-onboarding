@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, type ChangeEvent } from "react"
-import { ChevronDown, Eye, RotateCcw, GripVertical, ArrowDownAZ, Undo2 } from "lucide-react"
+import { useEffect, useRef, useState, type ChangeEvent } from "react"
+import { ChevronDown, Eye, RotateCcw, GripVertical, ArrowDownAZ, Undo2, Check } from "lucide-react"
 import styles from "./pricing-setup.module.css"
 import {
   CATEGORIES,
@@ -51,6 +51,10 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
   const [openAddOns, setOpenAddOns] = useState<Record<string, boolean>>({})
   // Id of the card currently being dragged for reordering (null when idle).
   const [dragId, setDragId] = useState<string | null>(null)
+  // Reset flow: a branded confirmation modal, then a self-dismissing success toast.
+  const [confirmReset, setConfirmReset] = useState(false)
+  const [resetToast, setResetToast] = useState(false)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const patchPrev = (id: string, patch: Partial<PrevState>) =>
     setPrev((p) => ({ ...p, [id]: { ...p[id], ...patch } }))
@@ -58,9 +62,27 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
   const cards = orderedCategories(rc.order)
   const shownCount = CATEGORIES.filter((c) => rc.shown[c.id]).length
 
-  const resetAll = () => {
-    if (!window.confirm("Reset wage, minimums, add-on prices and visibility back to Anago defaults?")) return
+  // Close the confirmation modal on Escape while it's open.
+  useEffect(() => {
+    if (!confirmReset) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setConfirmReset(false)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [confirmReset])
+
+  // Clear any pending toast timer on unmount.
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+  }, [])
+
+  const confirmResetAll = () => {
     rc.resetAll()
+    setConfirmReset(false)
+    setResetToast(true)
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(() => setResetToast(false), 3200)
   }
 
   return (
@@ -104,7 +126,7 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
             </button>
           )}
           <span className={styles.countPill}>{shownCount} of 12 shown</span>
-          <button type="button" className={styles.lnk} onClick={resetAll}>
+          <button type="button" className={styles.lnk} onClick={() => setConfirmReset(true)}>
             <RotateCcw strokeWidth={2} />
             Reset to Anago defaults
           </button>
@@ -529,6 +551,47 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
             })}
           </div>
         </div>
+      </div>
+
+      {/* Reset confirmation — branded modal in place of window.confirm */}
+      {confirmReset && (
+        <div
+          className={styles.modalOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="reset-title"
+          onClick={() => setConfirmReset(false)}
+        >
+          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalIcon}>
+              <RotateCcw strokeWidth={2} />
+            </div>
+            <h3 id="reset-title" className={styles.modalTitle}>
+              Reset to Anago defaults?
+            </h3>
+            <p className={styles.modalBody}>
+              This restores the default hourly wage, monthly minimums, add-on prices and selections, and every
+              facility&apos;s visibility and order. Any changes you&apos;ve made will be lost.
+            </p>
+            <div className={styles.modalActions}>
+              <button type="button" className={styles.modalCancel} onClick={() => setConfirmReset(false)} autoFocus>
+                Cancel
+              </button>
+              <button type="button" className={styles.modalConfirm} onClick={confirmResetAll}>
+                <RotateCcw strokeWidth={2.2} />
+                Reset to defaults
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success toast after a reset */}
+      <div className={cx(styles.toast, resetToast && styles.toastShow)} role="status" aria-live="polite">
+        <span className={styles.toastIcon}>
+          <Check strokeWidth={2.6} />
+        </span>
+        Rates reset to Anago defaults
       </div>
     </>
   )

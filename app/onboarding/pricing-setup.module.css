@@ -1583,3 +1583,161 @@
     grid-template-columns: repeat(6, 1fr);
   }
 }
+
+/* ---- reset confirmation modal + success toast ---- */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(16, 33, 56, 0.42);
+  backdrop-filter: blur(2px);
+  animation: agFade 0.16s ease-out;
+}
+.modalCard {
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 30px 28px 24px;
+  box-shadow: 0 30px 80px rgba(16, 33, 56, 0.3);
+  text-align: center;
+  animation: agPop 0.18s ease-out;
+}
+.modalIcon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(247, 161, 29, 0.14);
+  color: var(--orange-deep);
+}
+.modalIcon svg {
+  width: 24px;
+  height: 24px;
+}
+.modalTitle {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 24px;
+  color: var(--navy);
+  letter-spacing: 0.01em;
+}
+.modalBody {
+  font-size: 14px;
+  color: var(--body);
+  line-height: 1.55;
+  margin: 10px auto 24px;
+  max-width: 40ch;
+}
+.modalActions {
+  display: flex;
+  gap: 12px;
+}
+.modalCancel,
+.modalConfirm {
+  flex: 1;
+  height: 46px;
+  border-radius: 12px;
+  font-family: var(--text);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition:
+    background 0.15s,
+    transform 0.12s,
+    box-shadow 0.15s,
+    border-color 0.15s;
+}
+.modalCancel {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  color: var(--navy);
+}
+.modalCancel:hover {
+  background: var(--paper);
+  border-color: #d8d2c6;
+}
+.modalConfirm {
+  background: var(--navy);
+  border: 1.5px solid var(--navy);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(25, 50, 83, 0.18);
+}
+.modalConfirm:hover {
+  background: var(--navy-deep);
+  transform: translateY(-1px);
+}
+.modalConfirm svg {
+  width: 16px;
+  height: 16px;
+}
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 60;
+  transform: translate(-50%, 16px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border-radius: 12px;
+  background: var(--navy);
+  color: #fff;
+  font-family: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 14px 40px rgba(16, 33, 56, 0.34);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.24s ease,
+    transform 0.24s ease;
+}
+.toast.toastShow {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.toastIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: var(--navy);
+}
+.toastIcon svg {
+  width: 13px;
+  height: 13px;
+}
+@keyframes agFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes agPop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

@@ -520,16 +520,9 @@
   margin-top: 14px;
   line-height: 1.5;
 }
-/* small qualifier chip next to a section heading (e.g. "After hours") */
-.ctrlHtag {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--orange-deep);
-  background: rgba(247, 161, 29, 0.12);
-  border-radius: 999px;
-  padding: 2px 8px;
+/* pricing-mode toggle sits above the minimums grid; give it breathing room */
+.segPills[data-role="pricing-window"] {
+  margin-bottom: 18px;
 }
 /* during-business-hours wage row */
 .bhWageRow {

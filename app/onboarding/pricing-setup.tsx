@@ -47,6 +47,9 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
   )
   const [openCards, setOpenCards] = useState<Record<string, boolean>>(() => ({ [rc.order[0]]: true }))
   const [openPrev, setOpenPrev] = useState<Record<string, boolean>>({})
+  // Which pricing mode's settings are shown per card — a toggle swaps between the
+  // after-hours minimums and the during-business-hours wage + minimums.
+  const [pricingWin, setPricingWin] = useState<Record<string, Win>>({})
   // Per-card add-on list is collapsed until the master "Offer all add-ons" row is opened.
   const [openAddOns, setOpenAddOns] = useState<Record<string, boolean>>({})
   // Id of the card currently being dragged for reordering (null when idle).
@@ -229,119 +232,104 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                 {/* panel */}
                 <div className={styles.panel}>
                   <div className={styles.panelIn}>
-                    {/* after-hours minimums column */}
-                    <div>
-                      <div className={styles.ctrlH}>
-                        <span className={styles.n}>1</span>Monthly minimums
-                        <span className={styles.ctrlHtag}>After hours</span>
-                      </div>
-                      <div className={styles.minGrid}>
-                        {[
-                          { title: "Weekly visits", freqs: weeklyFreqs },
-                          { title: "Monthly visits", freqs: monthlyFreqs },
-                        ].map((group) => (
-                          <div key={group.title} className={styles.minGrp}>
-                            <div className={styles.gh}>
-                              {group.title} <small>floor</small>
-                            </div>
-                            <div className={styles.minRow}>
-                              {group.freqs.map((f) => {
-                                const val = rc.min[cat.id][f.id] || 0
-                                return (
-                                  <div key={f.id} className={cx(styles.minLine, !val && styles.off)}>
-                                    <span className={styles.fl}>{f.short}</span>
-                                    <div className={styles.moneyfield}>
-                                      <span className={styles.pre}>$</span>
-                                      <input
-                                        type="number"
-                                        min={0}
-                                        step={5}
-                                        inputMode="decimal"
-                                        placeholder="None"
-                                        value={val ? val : ""}
-                                        onChange={(e) => rc.setCatMin(cat.id, f.id, num(cleanNum(e)))}
-                                      />
-                                      <span className={styles.post}>/ mo</span>
-                                    </div>
-                                  </div>
-                                )
-                              })}
-                            </div>
+                    {/* pricing settings — a toggle swaps between the after-hours and
+                        during-business-hours minimums (business hours adds its own wage) */}
+                    {(() => {
+                      const pw = pricingWin[cat.id] ?? "after"
+                      const business = pw === "business"
+                      const minMap = business ? rc.bhMin : rc.min
+                      const setMin = business ? rc.setBhCatMin : rc.setCatMin
+                      return (
+                        <div>
+                          <div className={styles.ctrlH}>
+                            <span className={styles.n}>1</span>Pricing settings
                           </div>
-                        ))}
-                      </div>
-                      <div className={styles.minNote}>
-                        Leave a field blank for no floor — that frequency then bills at pure labor cost.
-                      </div>
-                    </div>
+                          <div className={styles.segPills} data-role="pricing-window" role="group" aria-label={`Pricing mode for ${cat.name}`}>
+                            <button
+                              type="button"
+                              className={cx(!business && styles.on)}
+                              aria-pressed={!business}
+                              onClick={() => setPricingWin((s) => ({ ...s, [cat.id]: "after" }))}
+                            >
+                              After hours
+                            </button>
+                            <button
+                              type="button"
+                              className={cx(business && styles.on)}
+                              aria-pressed={business}
+                              onClick={() => setPricingWin((s) => ({ ...s, [cat.id]: "business" }))}
+                            >
+                              During business hours
+                            </button>
+                          </div>
 
-                    {/* during business hours — its own wage + minimums */}
-                    <div>
-                      <div className={styles.ctrlH}>
-                        <span className={styles.n}>2</span>During business hours
-                        <span className={styles.ctrlHtag}>Day cleaning</span>
-                      </div>
-                      <div className={styles.bhWageRow}>
-                        <span className={styles.bhWageLab}>Hourly wage</span>
-                        <div className={cx(styles.moneyfield, styles.sm)}>
-                          <span className={styles.pre}>$</span>
-                          <input
-                            type="number"
-                            min={0}
-                            step={0.5}
-                            inputMode="decimal"
-                            aria-label={`During-business-hours hourly wage for ${cat.name}`}
-                            value={rc.bhWage[cat.id] || 0}
-                            onChange={(e) => rc.setBhWage(cat.id, num(cleanNum(e)))}
-                          />
-                          <span className={styles.post}>/ hr</span>
-                        </div>
-                      </div>
-                      <div className={styles.minGrid}>
-                        {[
-                          { title: "Weekly visits", freqs: weeklyFreqs },
-                          { title: "Monthly visits", freqs: monthlyFreqs },
-                        ].map((group) => (
-                          <div key={group.title} className={styles.minGrp}>
-                            <div className={styles.gh}>
-                              {group.title} <small>floor</small>
+                          {business && (
+                            <div className={styles.bhWageRow}>
+                              <span className={styles.bhWageLab}>Hourly wage</span>
+                              <div className={cx(styles.moneyfield, styles.sm)}>
+                                <span className={styles.pre}>$</span>
+                                <input
+                                  type="number"
+                                  min={0}
+                                  step={0.5}
+                                  inputMode="decimal"
+                                  aria-label={`During-business-hours hourly wage for ${cat.name}`}
+                                  value={rc.bhWage[cat.id] || 0}
+                                  onChange={(e) => rc.setBhWage(cat.id, num(cleanNum(e)))}
+                                />
+                                <span className={styles.post}>/ hr</span>
+                              </div>
                             </div>
-                            <div className={styles.minRow}>
-                              {group.freqs.map((f) => {
-                                const val = rc.bhMin[cat.id][f.id] || 0
-                                return (
-                                  <div key={f.id} className={cx(styles.minLine, !val && styles.off)}>
-                                    <span className={styles.fl}>{f.short}</span>
-                                    <div className={styles.moneyfield}>
-                                      <span className={styles.pre}>$</span>
-                                      <input
-                                        type="number"
-                                        min={0}
-                                        step={5}
-                                        inputMode="decimal"
-                                        placeholder="None"
-                                        value={val ? val : ""}
-                                        onChange={(e) => rc.setBhCatMin(cat.id, f.id, num(cleanNum(e)))}
-                                      />
-                                      <span className={styles.post}>/ mo</span>
-                                    </div>
-                                  </div>
-                                )
-                              })}
-                            </div>
+                          )}
+
+                          <div className={styles.minGrid}>
+                            {[
+                              { title: "Weekly visits", freqs: weeklyFreqs },
+                              { title: "Monthly visits", freqs: monthlyFreqs },
+                            ].map((group) => (
+                              <div key={group.title} className={styles.minGrp}>
+                                <div className={styles.gh}>
+                                  {group.title} <small>floor</small>
+                                </div>
+                                <div className={styles.minRow}>
+                                  {group.freqs.map((f) => {
+                                    const val = minMap[cat.id][f.id] || 0
+                                    return (
+                                      <div key={f.id} className={cx(styles.minLine, !val && styles.off)}>
+                                        <span className={styles.fl}>{f.short}</span>
+                                        <div className={styles.moneyfield}>
+                                          <span className={styles.pre}>$</span>
+                                          <input
+                                            type="number"
+                                            min={0}
+                                            step={5}
+                                            inputMode="decimal"
+                                            placeholder="None"
+                                            value={val ? val : ""}
+                                            onChange={(e) => setMin(cat.id, f.id, num(cleanNum(e)))}
+                                          />
+                                          <span className={styles.post}>/ mo</span>
+                                        </div>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                      <div className={styles.minNote}>
-                        Used when a customer picks “During business hours.” Priced as hours/day × this wage, floored to
-                        these minimums.
-                      </div>
-                    </div>
+                          <div className={styles.minNote}>
+                            {business
+                              ? "Used when a customer picks “During business hours.” Priced as hours/day × this wage, floored to these minimums."
+                              : "After-hours minimums — leave a field blank for no floor, and that frequency bills at pure labor cost."}
+                          </div>
+                        </div>
+                      )
+                    })()}
 
                     {/* add-ons offered by this facility */}
                     <div>
                       <div className={styles.ctrlH}>
-                        <span className={styles.n}>3</span>Add-ons offered
+                        <span className={styles.n}>2</span>Add-ons offered
                       </div>
                       {(() => {
                         const applicable = addOnsFor(cat.id)

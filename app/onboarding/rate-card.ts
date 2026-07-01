@@ -56,6 +56,9 @@ export interface AddOn {
   name: string
   desc: string
   medicalOnly?: boolean // Terminal cleaning applies to Medical Office facilities only.
+  // Porter is on-site daytime staffing — it's redundant on a during-business-hours
+  // quote, so it never surfaces as an add-on when the customer picks that window.
+  notForBusinessHours?: boolean
 }
 
 export const ADDONS: AddOn[] = [
@@ -78,6 +81,7 @@ export const ADDONS: AddOn[] = [
     id: "porter",
     name: "Porter Services",
     desc: "Continuous daytime maintenance to keep high-traffic facility areas clean, sanitized, and consistently presentable.",
+    notForBusinessHours: true,
   },
   {
     id: "misc",
@@ -347,6 +351,14 @@ export type AddOnEnabledMap = Record<string, Record<string, boolean>>
 function freshMin(): MinMap {
   return Object.fromEntries(CATEGORIES.map((c) => [c.id, Object.fromEntries(FREQS.map((f) => [f.id, DEFAULT_MIN[f.id]]))]))
 }
+// During-business-hours pricing has its own per-facility wage and minimums, edited
+// on each facility card. They default to the same figures as the after-hours model.
+function freshBhWage(): Record<string, number> {
+  return Object.fromEntries(CATEGORIES.map((c) => [c.id, DEFAULT_WAGE]))
+}
+function freshBhMin(): MinMap {
+  return freshMin()
+}
 function freshShown(): ShownMap {
   return Object.fromEntries(CATEGORIES.map((c) => [c.id, true]))
 }
@@ -362,15 +374,21 @@ function freshOrder(): string[] {
 }
 
 export interface RateCard {
-  // Hourly wage is a single global setting applied to every facility type.
+  // Hourly wage is a single global setting applied to every facility type's
+  // after-hours pricing. During-business-hours pricing carries its own per-facility
+  // wage (bhWage) and minimums (bhMin), edited on each facility card.
   wage: number
   min: MinMap
+  bhWage: Record<string, number>
+  bhMin: MinMap
   shown: ShownMap
   order: string[]
   addOnPrice: AddOnPriceMap
   addOnEnabled: AddOnEnabledMap
   setWage: (n: number) => void
   setCatMin: (id: string, freq: string, val: number) => void
+  setBhWage: (id: string, val: number) => void
+  setBhCatMin: (id: string, freq: string, val: number) => void
   setAddOnPrice: (addOnId: string, val: number) => void
   toggleAddOn: (catId: string, addOnId: string) => void
   setAllAddOns: (catId: string, enabled: boolean) => void
@@ -386,6 +404,8 @@ export interface RateCard {
 export function useRateCard(): RateCard {
   const [wage, setWage] = useState<number>(DEFAULT_WAGE)
   const [min, setMin] = useState<MinMap>(freshMin)
+  const [bhWage, setBhWageState] = useState<Record<string, number>>(freshBhWage)
+  const [bhMin, setBhMin] = useState<MinMap>(freshBhMin)
   const [shown, setShown] = useState<ShownMap>(freshShown)
   const [order, setOrder] = useState<string[]>(freshOrder)
   const [addOnPrice, setAddOnPriceState] = useState<AddOnPriceMap>(freshAddOnPrice)
@@ -413,6 +433,24 @@ export function useRateCard(): RateCard {
           })
           return next
         })
+        if (saved.bhWage) {
+          setBhWageState((w) => {
+            const next = { ...w }
+            CATEGORIES.forEach((c) => {
+              if (typeof saved.bhWage[c.id] === "number") next[c.id] = saved.bhWage[c.id]
+            })
+            return next
+          })
+        }
+        if (saved.bhMin) {
+          setBhMin((m) => {
+            const next = { ...m }
+            CATEGORIES.forEach((c) => {
+              if (saved.bhMin[c.id]) next[c.id] = { ...next[c.id], ...saved.bhMin[c.id] }
+            })
+            return next
+          })
+        }
         if (saved.shown) setShown((s) => ({ ...s, ...saved.shown }))
         if (saved.addOnPrice) {
           setAddOnPriceState((p) => {
@@ -451,14 +489,22 @@ export function useRateCard(): RateCard {
   useEffect(() => {
     if (!hydrated) return
     try {
-      localStorage.setItem(STORE_KEY, JSON.stringify({ wage, min, shown, order, addOnPrice, addOnEnabled }))
+      localStorage.setItem(STORE_KEY, JSON.stringify({ wage, min, bhWage, bhMin, shown, order, addOnPrice, addOnEnabled }))
     } catch {
       // ignore storage failures
     }
-  }, [wage, min, shown, order, addOnPrice, addOnEnabled, hydrated])
+  }, [wage, min, bhWage, bhMin, shown, order, addOnPrice, addOnEnabled, hydrated])
 
   const setCatMin = useCallback(
     (id: string, freq: string, val: number) => setMin((m) => ({ ...m, [id]: { ...m[id], [freq]: val } })),
+    [],
+  )
+  const setBhWage = useCallback(
+    (id: string, val: number) => setBhWageState((w) => ({ ...w, [id]: val })),
+    [],
+  )
+  const setBhCatMin = useCallback(
+    (id: string, freq: string, val: number) => setBhMin((m) => ({ ...m, [id]: { ...m[id], [freq]: val } })),
     [],
   )
   const setAddOnPrice = useCallback(
@@ -508,6 +554,8 @@ export function useRateCard(): RateCard {
   const resetAll = useCallback(() => {
     setWage(DEFAULT_WAGE)
     setMin(freshMin())
+    setBhWageState(freshBhWage())
+    setBhMin(freshBhMin())
     setShown(freshShown())
     setOrder(freshOrder())
     setAddOnPriceState(freshAddOnPrice())
@@ -516,5 +564,5 @@ export function useRateCard(): RateCard {
   }, [])
   const minimumFor = useCallback((id: string, freq: string) => min[id]?.[freq] || 0, [min])
 
-  return { wage, min, shown, order, addOnPrice, addOnEnabled, setWage, setCatMin, setAddOnPrice, toggleAddOn, setAllAddOns, toggleShown, reorder, sortAlphabetical, restorePrevOrder, hasPrevOrder: prevOrder !== null, resetAll, minimumFor }
+  return { wage, min, bhWage, bhMin, shown, order, addOnPrice, addOnEnabled, setWage, setCatMin, setBhWage, setBhCatMin, setAddOnPrice, toggleAddOn, setAllAddOns, toggleShown, reorder, sortAlphabetical, restorePrevOrder, hasPrevOrder: prevOrder !== null, resetAll, minimumFor }
 }

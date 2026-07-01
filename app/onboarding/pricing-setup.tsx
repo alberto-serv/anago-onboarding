@@ -229,10 +229,11 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                 {/* panel */}
                 <div className={styles.panel}>
                   <div className={styles.panelIn}>
-                    {/* minimums column */}
+                    {/* after-hours minimums column */}
                     <div>
                       <div className={styles.ctrlH}>
                         <span className={styles.n}>1</span>Monthly minimums
+                        <span className={styles.ctrlHtag}>After hours</span>
                       </div>
                       <div className={styles.minGrid}>
                         {[
@@ -274,10 +275,73 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                       </div>
                     </div>
 
+                    {/* during business hours — its own wage + minimums */}
+                    <div>
+                      <div className={styles.ctrlH}>
+                        <span className={styles.n}>2</span>During business hours
+                        <span className={styles.ctrlHtag}>Day cleaning</span>
+                      </div>
+                      <div className={styles.bhWageRow}>
+                        <span className={styles.bhWageLab}>Hourly wage</span>
+                        <div className={cx(styles.moneyfield, styles.sm)}>
+                          <span className={styles.pre}>$</span>
+                          <input
+                            type="number"
+                            min={0}
+                            step={0.5}
+                            inputMode="decimal"
+                            aria-label={`During-business-hours hourly wage for ${cat.name}`}
+                            value={rc.bhWage[cat.id] || 0}
+                            onChange={(e) => rc.setBhWage(cat.id, num(cleanNum(e)))}
+                          />
+                          <span className={styles.post}>/ hr</span>
+                        </div>
+                      </div>
+                      <div className={styles.minGrid}>
+                        {[
+                          { title: "Weekly visits", freqs: weeklyFreqs },
+                          { title: "Monthly visits", freqs: monthlyFreqs },
+                        ].map((group) => (
+                          <div key={group.title} className={styles.minGrp}>
+                            <div className={styles.gh}>
+                              {group.title} <small>floor</small>
+                            </div>
+                            <div className={styles.minRow}>
+                              {group.freqs.map((f) => {
+                                const val = rc.bhMin[cat.id][f.id] || 0
+                                return (
+                                  <div key={f.id} className={cx(styles.minLine, !val && styles.off)}>
+                                    <span className={styles.fl}>{f.short}</span>
+                                    <div className={styles.moneyfield}>
+                                      <span className={styles.pre}>$</span>
+                                      <input
+                                        type="number"
+                                        min={0}
+                                        step={5}
+                                        inputMode="decimal"
+                                        placeholder="None"
+                                        value={val ? val : ""}
+                                        onChange={(e) => rc.setBhCatMin(cat.id, f.id, num(cleanNum(e)))}
+                                      />
+                                      <span className={styles.post}>/ mo</span>
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className={styles.minNote}>
+                        Used when a customer picks “During business hours.” Priced as hours/day × this wage, floored to
+                        these minimums.
+                      </div>
+                    </div>
+
                     {/* add-ons offered by this facility */}
                     <div>
                       <div className={styles.ctrlH}>
-                        <span className={styles.n}>2</span>Add-ons offered
+                        <span className={styles.n}>3</span>Add-ons offered
                       </div>
                       {(() => {
                         const applicable = addOnsFor(cat.id)
@@ -332,6 +396,9 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                                         <span className={styles.addonPickPrice}>
                                           {price ? `$${fmtWage(price)}` : "Price not set"}
                                         </span>
+                                        {a.notForBusinessHours && (
+                                          <span className={styles.addonPickNote}>Hidden during business hours</span>
+                                        )}
                                       </div>
                                       <button
                                         type="button"
@@ -453,11 +520,10 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                           </thead>
                           <tbody>
                             {PREV_FREQS.map((fid) => {
-                              const minimum = rc.min[cat.id][fid] || 0
                               const p =
                                 pv.window === "business"
-                                  ? priceHours(fid, pv.hours, rc.wage || 0, minimum)
-                                  : priceProduction(cat, fid, pv.sqft, pv.density, rc.wage || 0, minimum)
+                                  ? priceHours(fid, pv.hours, rc.bhWage[cat.id] || 0, rc.bhMin[cat.id][fid] || 0)
+                                  : priceProduction(cat, fid, pv.sqft, pv.density, rc.wage || 0, rc.min[cat.id][fid] || 0)
                               return (
                                 <tr key={fid} className={cx(p.floored && styles.floored)}>
                                   <td>{FREQ_BY[fid].label}</td>
@@ -479,7 +545,7 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                             <>
                               Day cleaning —{" "}
                               <b>
-                                {pv.hours} hr/day × ${fmtWage(rc.wage || 0)}/hr
+                                {pv.hours} hr/day × ${fmtWage(rc.bhWage[cat.id] || 0)}/hr
                               </b>{" "}
                               per visit, the same at every frequency; monthly is hours × visits × wage, floored to your
                               minimum.
@@ -525,10 +591,16 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                     <div className={styles.addonName}>
                       {a.name}
                       {a.medicalOnly && <span className={styles.addonTag}>Medical only</span>}
+                      {a.notForBusinessHours && <span className={styles.addonTag}>After hours only</span>}
                     </div>
                     <div className={styles.addonDesc}>{a.desc}</div>
                     {a.medicalOnly && (
                       <div className={styles.addonNote}>Applies to Medical Office facilities only.</div>
+                    )}
+                    {a.notForBusinessHours && (
+                      <div className={styles.addonNote}>
+                        Not shown as an add-on when the customer chooses “During business hours.”
+                      </div>
                     )}
                   </div>
                   <div className={styles.addonPrice}>

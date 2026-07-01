@@ -51,8 +51,10 @@ export function StorefrontPreview({ rc }: { rc: RateCard }) {
   // If the selected facility was just hidden in the editor, fall back to the first visible one.
   const selectedCat = visible.find((c) => c.id === selectedId) ?? visible[0] ?? CATEGORIES[0]
   const businessHours = timeWindow === "business"
-  const wage = rc.wage || 0
-  const minimum = rc.min[selectedCat.id]?.[frequency] || 0
+  // During-business-hours quotes bill on the facility's own day-cleaning wage and
+  // minimums; after-hours uses the global wage and after-hours minimums.
+  const wage = (businessHours ? rc.bhWage[selectedCat.id] : rc.wage) || 0
+  const minimum = (businessHours ? rc.bhMin : rc.min)[selectedCat.id]?.[frequency] || 0
 
   const pricing = businessHours
     ? priceHours(frequency, hoursPerDay, wage, minimum)

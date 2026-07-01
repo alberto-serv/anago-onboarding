@@ -47,6 +47,8 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
   )
   const [openCards, setOpenCards] = useState<Record<string, boolean>>(() => ({ [rc.order[0]]: true }))
   const [openPrev, setOpenPrev] = useState<Record<string, boolean>>({})
+  // Per-card add-on list is collapsed until the master "Offer all add-ons" row is opened.
+  const [openAddOns, setOpenAddOns] = useState<Record<string, boolean>>({})
   // Id of the card currently being dragged for reordering (null when idle).
   const [dragId, setDragId] = useState<string | null>(null)
 
@@ -255,32 +257,78 @@ export function PricingEditor({ rc }: { rc: RateCard }) {
                       <div className={styles.ctrlH}>
                         <span className={styles.n}>2</span>Add-ons offered
                       </div>
-                      <div className={styles.addonPickList}>
-                        {addOnsFor(cat.id).map((a) => {
-                          const on = !!rc.addOnEnabled[cat.id]?.[a.id]
-                          const price = rc.addOnPrice[a.id] || 0
-                          return (
-                            <div key={a.id} className={cx(styles.addonPickRow, !on && styles.off)}>
-                              <div className={styles.addonPickInfo}>
-                                <span className={styles.addonPickName}>{a.name}</span>
-                                <span className={styles.addonPickPrice}>
-                                  {price ? `$${fmtWage(price)}` : "Price not set"}
+                      {(() => {
+                        const applicable = addOnsFor(cat.id)
+                        const allOn = applicable.every((a) => rc.addOnEnabled[cat.id]?.[a.id])
+                        const open = !!openAddOns[cat.id]
+                        return (
+                          <>
+                            <div
+                              className={cx(styles.addonPickRow, styles.addonPickAll, open && styles.open)}
+                              role="button"
+                              tabIndex={0}
+                              aria-expanded={open}
+                              onClick={(e) => {
+                                if ((e.target as HTMLElement).closest(`.${styles.switch}`)) return
+                                setOpenAddOns((o) => ({ ...o, [cat.id]: !o[cat.id] }))
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault()
+                                  setOpenAddOns((o) => ({ ...o, [cat.id]: !o[cat.id] }))
+                                }
+                              }}
+                            >
+                              <span className={styles.addonPickName}>
+                                {allOn ? "All add-ons offered" : "Offer all add-ons"}
+                              </span>
+                              <div className={styles.addonAllRight}>
+                                <button
+                                  type="button"
+                                  className={cx(styles.switch, allOn && styles.on)}
+                                  role="switch"
+                                  aria-checked={allOn}
+                                  aria-label={`Offer all add-ons for ${cat.name}`}
+                                  onClick={() => rc.setAllAddOns(cat.id, !allOn)}
+                                >
+                                  <span className={styles.knob} />
+                                </button>
+                                <span className={styles.addonChev}>
+                                  <ChevronDown strokeWidth={2.4} />
                                 </span>
                               </div>
-                              <button
-                                type="button"
-                                className={cx(styles.switch, on && styles.on)}
-                                role="switch"
-                                aria-checked={on}
-                                aria-label={`Offer ${a.name} for ${cat.name}`}
-                                onClick={() => rc.toggleAddOn(cat.id, a.id)}
-                              >
-                                <span className={styles.knob} />
-                              </button>
                             </div>
-                          )
-                        })}
-                      </div>
+                            {open && (
+                              <div className={styles.addonPickList}>
+                                {applicable.map((a) => {
+                                  const on = !!rc.addOnEnabled[cat.id]?.[a.id]
+                                  const price = rc.addOnPrice[a.id] || 0
+                                  return (
+                                    <div key={a.id} className={cx(styles.addonPickRow, !on && styles.off)}>
+                                      <div className={styles.addonPickInfo}>
+                                        <span className={styles.addonPickName}>{a.name}</span>
+                                        <span className={styles.addonPickPrice}>
+                                          {price ? `$${fmtWage(price)}` : "Price not set"}
+                                        </span>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        className={cx(styles.switch, on && styles.on)}
+                                        role="switch"
+                                        aria-checked={on}
+                                        aria-label={`Offer ${a.name} for ${cat.name}`}
+                                        onClick={() => rc.toggleAddOn(cat.id, a.id)}
+                                      >
+                                        <span className={styles.knob} />
+                                      </button>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            )}
+                          </>
+                        )
+                      })()}
                       <div className={styles.minNote}>
                         Choose which add-ons this facility offers. Set each add-on&apos;s price below.
                       </div>

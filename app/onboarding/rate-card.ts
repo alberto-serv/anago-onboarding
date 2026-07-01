@@ -142,16 +142,18 @@ export const FREQ_BY: Record<string, Freq> = Object.fromEntries(FREQS.map((f) =>
 export const MONTHLY_FREQ_IDS = FREQS.filter((f) => f.grp === "monthly").map((f) => f.id)
 export const WEEKLY_FREQ_IDS = FREQS.filter((f) => f.grp === "weekly").map((f) => f.id)
 
+// Weekly frequencies that weren't previously set default to $165 × visits/week
+// (e.g. 4×/week → $660). 1×/week and 5×/week keep their established figures.
 export const DEFAULT_MIN: Record<string, number> = {
   "1x-month": 155,
   "2x-month": 295,
   "1x-week": 385,
-  "2x-week": 0,
-  "3x-week": 0,
-  "4x-week": 0,
+  "2x-week": 330,
+  "3x-week": 495,
+  "4x-week": 660,
   "5x-week": 825,
-  "6x-week": 0,
-  "7x-week": 0,
+  "6x-week": 990,
+  "7x-week": 1155,
 }
 export const DEFAULT_WAGE = 25
 export const PREV_FREQS = [
@@ -371,6 +373,7 @@ export interface RateCard {
   setCatMin: (id: string, freq: string, val: number) => void
   setAddOnPrice: (addOnId: string, val: number) => void
   toggleAddOn: (catId: string, addOnId: string) => void
+  setAllAddOns: (catId: string, enabled: boolean) => void
   toggleShown: (id: string) => void
   reorder: (fromId: string, toId: string) => void
   sortAlphabetical: () => void
@@ -467,6 +470,15 @@ export function useRateCard(): RateCard {
       setAddOnEnabled((en) => ({ ...en, [catId]: { ...en[catId], [addOnId]: !en[catId]?.[addOnId] } })),
     [],
   )
+  // Turn every add-on this facility can offer on or off in one move.
+  const setAllAddOns = useCallback(
+    (catId: string, enabled: boolean) =>
+      setAddOnEnabled((en) => ({
+        ...en,
+        [catId]: Object.fromEntries(addOnsFor(catId).map((a) => [a.id, enabled])),
+      })),
+    [],
+  )
   const toggleShown = useCallback((id: string) => setShown((s) => ({ ...s, [id]: !s[id] })), [])
   // Move `fromId` so it lands in `toId`'s current slot. A manual drag replaces any
   // pre-sort snapshot — "restore previous order" only makes sense right after a sort.
@@ -504,5 +516,5 @@ export function useRateCard(): RateCard {
   }, [])
   const minimumFor = useCallback((id: string, freq: string) => min[id]?.[freq] || 0, [min])
 
-  return { wage, min, shown, order, addOnPrice, addOnEnabled, setWage, setCatMin, setAddOnPrice, toggleAddOn, toggleShown, reorder, sortAlphabetical, restorePrevOrder, hasPrevOrder: prevOrder !== null, resetAll, minimumFor }
+  return { wage, min, shown, order, addOnPrice, addOnEnabled, setWage, setCatMin, setAddOnPrice, toggleAddOn, setAllAddOns, toggleShown, reorder, sortAlphabetical, restorePrevOrder, hasPrevOrder: prevOrder !== null, resetAll, minimumFor }
 }

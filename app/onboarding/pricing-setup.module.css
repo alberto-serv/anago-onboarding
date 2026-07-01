@@ -571,6 +571,36 @@
 .addonPickRow.off {
   opacity: 0.5;
 }
+.addonPickAll {
+  background: var(--band-soft);
+  border-color: var(--line);
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.addonPickAll .addonPickName {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+.addonAllRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.addonChev {
+  color: var(--ag-muted);
+  display: inline-flex;
+  transition: transform 0.2s;
+}
+.addonChev svg {
+  width: 18px;
+  height: 18px;
+}
+.addonPickAll.open .addonChev {
+  transform: rotate(180deg);
+}
 .addonPickInfo {
   display: flex;
   flex-direction: column;

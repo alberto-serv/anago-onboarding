@@ -149,10 +149,7 @@ export default function OnboardingPage() {
   const [teamEmails, setTeamEmails] = useState<string[]>([])
   const [newTeamEmail, setNewTeamEmail] = useState("")
   const [teamEmailError, setTeamEmailError] = useState<string | null>(null)
-  const [availabilityPreference, setAvailabilityPreference] = useState("Use tech availability")
   const [jobsPerSlot, setJobsPerSlot] = useState(8)
-  const [advanceNotice, setAdvanceNotice] = useState("None")
-  const [useSlotsByJobType, setUseSlotsByJobType] = useState(false)
   const [bookingSlotDuration, setBookingSlotDuration] = useState("1:00 hours")
   const [open247, setOpen247] = useState(false)
   const [openOnHolidays, setOpenOnHolidays] = useState(true)
@@ -205,10 +202,7 @@ export default function OnboardingPage() {
           workingHours,
           open247,
           openOnHolidays,
-          availabilityPreference,
           jobsPerSlot,
-          advanceNotice,
-          useSlotsByJobType,
           bookingSlotDuration,
           observedHolidays,
           blockedDates,
@@ -610,89 +604,38 @@ export default function OnboardingPage() {
                 <Pencil className="h-3.5 w-3.5" />
               </Button>
 
-              {/* Availability preference */}
+              {/* Booking slot duration */}
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium">Availability preference</Label>
-                <Select value={availabilityPreference} onValueChange={setAvailabilityPreference}>
+                <Label className="text-sm font-medium">Booking slot duration</Label>
+                <Select value={bookingSlotDuration} onValueChange={setBookingSlotDuration}>
                   <SelectTrigger className="h-10 w-full rounded-xl text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {["Use tech availability", "Set number of jobs per slot", "Allow double booking"].map((o) => (
+                    {["0:30 hours", "1:00 hours", "1:30 hours", "2:00 hours", "2:30 hours", "3:00 hours", "3:30 hours", "4:00 hours"].map((o) => (
                       <SelectItem key={o} value={o}>
                         {o}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">
-                  Display availability based on your team&apos;s schedule or a set number of slots
-                </p>
+                <p className="text-xs text-muted-foreground">Set the default booking slot length</p>
               </div>
 
-              {/* Jobs per slot — only when "Set number of jobs per slot" is chosen */}
-              {availabilityPreference === "Set number of jobs per slot" && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="jobs-per-slot" className="text-sm font-medium">
-                    Jobs per slot
-                  </Label>
-                  <Input
-                    id="jobs-per-slot"
-                    type="number"
-                    min={1}
-                    value={jobsPerSlot}
-                    onChange={(e) => setJobsPerSlot(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="h-10 w-24 rounded-xl text-sm"
-                  />
-                </div>
-              )}
-
-              {/* Advance notice required */}
+              {/* Maximum number of bookings per slot */}
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium">Advance notice required</Label>
-                <Select value={advanceNotice} onValueChange={setAdvanceNotice}>
-                  <SelectTrigger className="h-10 w-full rounded-xl text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["None", "1 hour", "2 hours", "4 hours", "6 hours", "8 hours", "10 hours", "1 day", "2 days", "3 days", "7 days"].map((o) => (
-                      <SelectItem key={o} value={o}>
-                        {o}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">Specify the buffer time you need for new bookings</p>
+                <Label htmlFor="jobs-per-slot" className="text-sm font-medium">
+                  Maximum number of bookings per slot
+                </Label>
+                <Input
+                  id="jobs-per-slot"
+                  type="number"
+                  min={1}
+                  value={jobsPerSlot}
+                  onChange={(e) => setJobsPerSlot(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="h-10 w-24 rounded-xl text-sm"
+                />
               </div>
-
-              {/* Use slots by job type */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Use slots by job type</Label>
-                  <Switch checked={useSlotsByJobType} onCheckedChange={setUseSlotsByJobType} />
-                </div>
-                <p className="text-xs text-muted-foreground">Use job type specific slot durations</p>
-              </div>
-
-              {/* Booking slot duration — hidden when slots are set per job type */}
-              {!useSlotsByJobType && (
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium">Booking slot duration</Label>
-                  <Select value={bookingSlotDuration} onValueChange={setBookingSlotDuration}>
-                    <SelectTrigger className="h-10 w-full rounded-xl text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["0:30 hours", "1:00 hours", "1:30 hours", "2:00 hours", "2:30 hours", "3:00 hours", "3:30 hours", "4:00 hours"].map((o) => (
-                        <SelectItem key={o} value={o}>
-                          {o}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">Set the default booking slot length</p>
-                </div>
-              )}
             </div>
 
             {/* Edit business hours dialog */}

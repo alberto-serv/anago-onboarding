@@ -148,6 +148,10 @@ export default function OnboardingPage() {
   })
   const [includeScheduling, setIncludeScheduling] = useState(true)
   const [liveBookings, setLiveBookings] = useState(false)
+  // Team members who receive calendar invites for booked jobs.
+  const [teamEmails, setTeamEmails] = useState<string[]>([])
+  const [newTeamEmail, setNewTeamEmail] = useState("")
+  const [teamEmailError, setTeamEmailError] = useState<string | null>(null)
   const [availabilityPreference, setAvailabilityPreference] = useState("Use tech availability")
   const [jobsPerSlot, setJobsPerSlot] = useState(8)
   const [advanceNotice, setAdvanceNotice] = useState("None")
@@ -200,6 +204,7 @@ export default function OnboardingPage() {
         JSON.stringify({
           identityData,
           businessDetails,
+          teamEmails,
           workingHours,
           open247,
           openOnHolidays,
@@ -238,6 +243,22 @@ export default function OnboardingPage() {
 
   const setDay = (day: DayKey, patch: Partial<DayHours>) =>
     setWorkingHours((prev) => ({ ...prev, [day]: { ...prev[day], ...patch } }))
+
+  const addTeamEmail = () => {
+    const value = newTeamEmail.trim().toLowerCase()
+    if (!value) return
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      setTeamEmailError("Enter a valid email address.")
+      return
+    }
+    if (teamEmails.includes(value)) {
+      setTeamEmailError("That email has already been added.")
+      return
+    }
+    setTeamEmails((prev) => [...prev, value])
+    setNewTeamEmail("")
+    setTeamEmailError(null)
+  }
 
   const addBlockedDate = () => {
     const value = newBlockedDate.trim()
@@ -509,6 +530,70 @@ export default function OnboardingPage() {
               <p className="text-lg text-muted-foreground max-w-xl">
                 Set your availability, holidays, and booking capacity. You can update these anytime from your dashboard.
               </p>
+            </div>
+
+            {/* Calendar invite recipients */}
+            <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <Label className="text-sm font-medium text-muted-foreground">Calendar invite recipients</Label>
+              </div>
+              <p className="text-xs text-muted-foreground mb-5">
+                Add the email addresses of team members who should receive a calendar invite for every booked job.
+              </p>
+              <div className="flex items-center gap-2 mb-2">
+                <Input
+                  type="email"
+                  inputMode="email"
+                  placeholder="name@company.com"
+                  value={newTeamEmail}
+                  onChange={(e) => {
+                    setNewTeamEmail(e.target.value)
+                    if (teamEmailError) setTeamEmailError(null)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === ",") {
+                      e.preventDefault()
+                      addTeamEmail()
+                    }
+                  }}
+                  className="h-11 rounded-xl text-base flex-1"
+                />
+                <Button
+                  type="button"
+                  onClick={addTeamEmail}
+                  variant="outline"
+                  disabled={!newTeamEmail.trim()}
+                  className="h-11 rounded-xl px-4 border border-border bg-transparent"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+              </div>
+              {teamEmailError && <p className="text-xs text-destructive mb-3">{teamEmailError}</p>}
+
+              {teamEmails.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {teamEmails.map((email) => (
+                    <span
+                      key={email}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-sm font-medium"
+                    >
+                      {email}
+                      <button
+                        type="button"
+                        onClick={() => setTeamEmails((prev) => prev.filter((x) => x !== email))}
+                        className="text-muted-foreground hover:text-foreground"
+                        aria-label={`Remove ${email}`}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground italic mt-1">No recipients added yet.</p>
+              )}
             </div>
 
             {/* Scheduling options */}

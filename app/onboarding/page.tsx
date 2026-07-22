@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Fragment } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,14 +15,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
 import { ServHeader } from "@/components/serv-header"
 import {
   Check,
   HelpCircle,
   Rocket,
   CalendarCheck,
+  CalendarDays,
   CalendarX,
-  Clock,
   CreditCard,
   MapPin,
   Phone,
@@ -31,6 +39,9 @@ import {
   User,
   Plus,
   X,
+  Pencil,
+  SlidersHorizontal,
+  Info,
   ExternalLink,
 } from "lucide-react"
 import { PreviewSection } from "./preview-section"
@@ -62,6 +73,23 @@ const DAYS = [
 
 type DayKey = (typeof DAYS)[number]["key"]
 type DayHours = { enabled: boolean; start: string; end: string }
+
+// US federal holidays offered on the scheduling step. Bookings are blocked on
+// any the owner marks as observed.
+const HOLIDAYS = [
+  { key: "newYearsDay",     label: "New Year's Day",             date: "Jan 1" },
+  { key: "mlkDay",          label: "Martin Luther King Jr. Day", date: "3rd Mon of Jan" },
+  { key: "presidentsDay",   label: "Presidents' Day",            date: "3rd Mon of Feb" },
+  { key: "memorialDay",     label: "Memorial Day",               date: "Last Mon of May" },
+  { key: "juneteenth",      label: "Juneteenth",                 date: "Jun 19" },
+  { key: "independenceDay", label: "Independence Day",           date: "Jul 4" },
+  { key: "laborDay",        label: "Labor Day",                  date: "1st Mon of Sep" },
+  { key: "columbusDay",     label: "Columbus Day",               date: "2nd Mon of Oct" },
+  { key: "veteransDay",     label: "Veterans Day",               date: "Nov 11" },
+  { key: "thanksgiving",    label: "Thanksgiving Day",           date: "4th Thu of Nov" },
+  { key: "christmas",       label: "Christmas Day",              date: "Dec 25" },
+] as const
+type HolidayKey = (typeof HOLIDAYS)[number]["key"]
 
 type StepContent = "confirm-identity" | "review-website" | "confirm-business" | "scheduling" | "finish"
 
@@ -118,17 +146,71 @@ export default function OnboardingPage() {
     saturday: { enabled: false, start: "09:00", end: "14:00" },
     sunday: { enabled: false, start: "09:00", end: "14:00" },
   })
-  const [allowDoubleBooking, setAllowDoubleBooking] = useState(false)
-  const [leadTimeHours, setLeadTimeHours] = useState("24")
+  const [includeScheduling, setIncludeScheduling] = useState(true)
+  const [liveBookings, setLiveBookings] = useState(false)
+  const [availabilityPreference, setAvailabilityPreference] = useState("Use tech availability")
+  const [jobsPerSlot, setJobsPerSlot] = useState(8)
+  const [advanceNotice, setAdvanceNotice] = useState("None")
+  const [useSlotsByJobType, setUseSlotsByJobType] = useState(false)
+  const [bookingSlotDuration, setBookingSlotDuration] = useState("1:00 hours")
+  const [open247, setOpen247] = useState(false)
+  const [openOnHolidays, setOpenOnHolidays] = useState(true)
+  const [observedHolidays, setObservedHolidays] = useState<Record<HolidayKey, boolean>>({
+    newYearsDay: true,
+    mlkDay: false,
+    presidentsDay: false,
+    memorialDay: true,
+    juneteenth: false,
+    independenceDay: true,
+    laborDay: true,
+    columbusDay: false,
+    veteransDay: false,
+    thanksgiving: true,
+    christmas: true,
+  })
   const [blockedDates, setBlockedDates] = useState<string[]>([])
   const [newBlockedDate, setNewBlockedDate] = useState("")
+
+  // Business-hours dialog. We snapshot on open so Cancel can roll back edits to
+  // the working hours and the two open-24/7 / open-on-holidays toggles.
+  const [businessHoursOpen, setBusinessHoursOpen] = useState(false)
+  const [hoursSnapshot, setHoursSnapshot] = useState<{
+    workingHours: Record<DayKey, DayHours>
+    open247: boolean
+    openOnHolidays: boolean
+  } | null>(null)
+  const openBusinessHours = () => {
+    setHoursSnapshot({ workingHours, open247, openOnHolidays })
+    setBusinessHoursOpen(true)
+  }
+  const cancelBusinessHours = () => {
+    if (hoursSnapshot) {
+      setWorkingHours(hoursSnapshot.workingHours)
+      setOpen247(hoursSnapshot.open247)
+      setOpenOnHolidays(hoursSnapshot.openOnHolidays)
+    }
+    setBusinessHoursOpen(false)
+  }
 
   const saveProgress = (next: number) => {
     try {
       localStorage.setItem("onboardingStep", next.toString())
       localStorage.setItem(
         "onboardingData",
-        JSON.stringify({ identityData, businessDetails, workingHours, leadTimeHours }),
+        JSON.stringify({
+          identityData,
+          businessDetails,
+          workingHours,
+          open247,
+          openOnHolidays,
+          availabilityPreference,
+          jobsPerSlot,
+          advanceNotice,
+          useSlotsByJobType,
+          bookingSlotDuration,
+          observedHolidays,
+          blockedDates,
+        }),
       )
     } catch {
       // ignore storage failures
@@ -423,127 +505,266 @@ export default function OnboardingPage() {
         {currentContent === "scheduling" && (
           <div className="space-y-10" style={{ animation: "fade-up 0.4s ease-out" }}>
             <div className="space-y-3">
-              <h1 className="text-[clamp(2rem,4vw,3.25rem)] font-bold">Set Your Availability</h1>
+              <h1 className="text-[clamp(2rem,4vw,3.25rem)] font-bold">Scheduling</h1>
               <p className="text-lg text-muted-foreground max-w-xl">
-                Tell us when you take bookings so customers only schedule during the hours you work.
+                Set your availability, holidays, and booking capacity. You can update these anytime from your dashboard.
               </p>
             </div>
 
-            {/* Working hours */}
+            {/* Scheduling options */}
             <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <h2 className="text-lg font-bold">Business Hours</h2>
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">Include scheduling</p>
+                <Switch checked={includeScheduling} onCheckedChange={setIncludeScheduling} />
               </div>
-              <div className="space-y-3">
-                {DAYS.map(({ key, label }) => {
-                  const day = workingHours[key]
-                  return (
-                    <div
-                      key={key}
-                      className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 rounded-xl border border-border p-4"
-                    >
-                      <div className="flex items-center gap-3 sm:w-44">
-                        <Switch checked={day.enabled} onCheckedChange={(v) => setDay(key, { enabled: v })} />
-                        <span className={`text-sm font-medium ${day.enabled ? "text-foreground" : "text-muted-foreground"}`}>
-                          {label}
-                        </span>
-                      </div>
-                      {day.enabled ? (
-                        <div className="flex items-center gap-2">
-                          <Select value={day.start} onValueChange={(v) => setDay(key, { start: v })}>
-                            <SelectTrigger className="h-10 w-32 rounded-lg">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {TIME_OPTIONS.map((t) => (
-                                <SelectItem key={t.value} value={t.value}>
-                                  {t.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <span className="text-sm text-muted-foreground">to</span>
-                          <Select value={day.end} onValueChange={(v) => setDay(key, { end: v })}>
-                            <SelectTrigger className="h-10 w-32 rounded-lg">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {TIME_OPTIONS.map((t) => (
-                                <SelectItem key={t.value} value={t.value}>
-                                  {t.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">Closed</span>
-                      )}
-                    </div>
-                  )
-                })}
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">Switch to live bookings</p>
+                <Switch checked={liveBookings} onCheckedChange={setLiveBookings} />
               </div>
             </div>
 
-            {/* Booking rules */}
+            {/* Availability */}
             <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
-              <h2 className="text-lg font-bold">Booking Rules</h2>
-
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">Allow double booking</p>
-                  <p className="text-sm text-muted-foreground">Let more than one job be booked in the same time slot.</p>
-                </div>
-                <Switch checked={allowDoubleBooking} onCheckedChange={setAllowDoubleBooking} />
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+                <Label className="text-sm font-medium text-muted-foreground">Availability</Label>
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-border">
-                <Label className="text-sm font-medium text-muted-foreground flex items-center gap-2 pt-4">
-                  <CalendarCheck className="h-3.5 w-3.5" />
-                  Minimum lead time before first appointment
-                </Label>
-                <Select value={leadTimeHours} onValueChange={setLeadTimeHours}>
-                  <SelectTrigger className="h-11 rounded-xl">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={openBusinessHours}
+                className="rounded-full h-9 px-4 gap-2 text-sm"
+              >
+                Edit business hours
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+
+              {/* Availability preference */}
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">Availability preference</Label>
+                <Select value={availabilityPreference} onValueChange={setAvailabilityPreference}>
+                  <SelectTrigger className="h-10 w-full rounded-xl text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {[
-                      { v: "0", l: "No minimum" },
-                      { v: "2", l: "2 hours" },
-                      { v: "4", l: "4 hours" },
-                      { v: "12", l: "12 hours" },
-                      { v: "24", l: "24 hours" },
-                      { v: "48", l: "48 hours" },
-                    ].map((o) => (
-                      <SelectItem key={o.v} value={o.v}>
-                        {o.l}
+                    {["Use tech availability", "Set number of jobs per slot", "Allow double booking"].map((o) => (
+                      <SelectItem key={o} value={o}>
+                        {o}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">
+                  Display availability based on your team&apos;s schedule or a set number of slots
+                </p>
               </div>
+
+              {/* Jobs per slot — only when "Set number of jobs per slot" is chosen */}
+              {availabilityPreference === "Set number of jobs per slot" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="jobs-per-slot" className="text-sm font-medium">
+                    Jobs per slot
+                  </Label>
+                  <Input
+                    id="jobs-per-slot"
+                    type="number"
+                    min={1}
+                    value={jobsPerSlot}
+                    onChange={(e) => setJobsPerSlot(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="h-10 w-24 rounded-xl text-sm"
+                  />
+                </div>
+              )}
+
+              {/* Advance notice required */}
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">Advance notice required</Label>
+                <Select value={advanceNotice} onValueChange={setAdvanceNotice}>
+                  <SelectTrigger className="h-10 w-full rounded-xl text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["None", "1 hour", "2 hours", "4 hours", "6 hours", "8 hours", "10 hours", "1 day", "2 days", "3 days", "7 days"].map((o) => (
+                      <SelectItem key={o} value={o}>
+                        {o}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Specify the buffer time you need for new bookings</p>
+              </div>
+
+              {/* Use slots by job type */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Use slots by job type</Label>
+                  <Switch checked={useSlotsByJobType} onCheckedChange={setUseSlotsByJobType} />
+                </div>
+                <p className="text-xs text-muted-foreground">Use job type specific slot durations</p>
+              </div>
+
+              {/* Booking slot duration — hidden when slots are set per job type */}
+              {!useSlotsByJobType && (
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium">Booking slot duration</Label>
+                  <Select value={bookingSlotDuration} onValueChange={setBookingSlotDuration}>
+                    <SelectTrigger className="h-10 w-full rounded-xl text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["0:30 hours", "1:00 hours", "1:30 hours", "2:00 hours", "2:30 hours", "3:00 hours", "3:30 hours", "4:00 hours"].map((o) => (
+                        <SelectItem key={o} value={o}>
+                          {o}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Set the default booking slot length</p>
+                </div>
+              )}
             </div>
 
-            {/* Blocked dates */}
-            <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
-              <div className="flex items-center gap-2">
-                <CalendarX className="h-4 w-4 text-muted-foreground" />
-                <h2 className="text-lg font-bold">Blocked Dates</h2>
-              </div>
-              <p className="text-sm text-muted-foreground">Add days you&apos;re unavailable and customers can&apos;t book.</p>
+            {/* Edit business hours dialog */}
+            <Dialog open={businessHoursOpen} onOpenChange={(o) => (o ? setBusinessHoursOpen(true) : cancelBusinessHours())}>
+              <DialogContent className="sm:max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle className="text-xl">Edit business hours of operation</DialogTitle>
+                </DialogHeader>
 
-              <div className="flex items-center gap-2">
+                <div
+                  className={`grid grid-cols-[4.5rem_4.5rem_1fr_1fr] items-center gap-x-3 gap-y-2.5 ${
+                    open247 ? "opacity-50 pointer-events-none" : ""
+                  }`}
+                >
+                  <span className="text-sm font-semibold text-muted-foreground">Day:</span>
+                  <span className="text-sm font-semibold text-muted-foreground">Working?</span>
+                  <span className="text-sm font-semibold text-muted-foreground">Start at:</span>
+                  <span className="text-sm font-semibold text-muted-foreground">End at:</span>
+                  {DAYS.map(({ key, label }) => {
+                    const day = workingHours[key]
+                    return (
+                      <Fragment key={key}>
+                        <span className="text-sm font-medium">{label}</span>
+                        <Checkbox
+                          checked={day.enabled}
+                          onCheckedChange={(c) => setDay(key, { enabled: c === true })}
+                        />
+                        <Select value={day.start} onValueChange={(v) => setDay(key, { start: v })}>
+                          <SelectTrigger className="h-10 rounded-lg text-sm">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-72">
+                            {TIME_OPTIONS.map((t) => (
+                              <SelectItem key={t.value} value={t.value}>
+                                {t.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select value={day.end} onValueChange={(v) => setDay(key, { end: v })}>
+                          <SelectTrigger className="h-10 rounded-lg text-sm">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-72">
+                            {TIME_OPTIONS.map((t) => (
+                              <SelectItem key={t.value} value={t.value}>
+                                {t.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </Fragment>
+                    )
+                  })}
+                </div>
+
+                <div className="mt-2 space-y-3 border-t border-border pt-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold">Open 24/7</span>
+                    <Switch checked={open247} onCheckedChange={setOpen247} className="data-[state=checked]:bg-green-500" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold">Open on holidays</span>
+                    <Switch checked={openOnHolidays} onCheckedChange={setOpenOnHolidays} className="data-[state=checked]:bg-green-500" />
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={cancelBusinessHours} className="rounded-full px-6">
+                    Cancel
+                  </Button>
+                  <Button type="button" onClick={() => setBusinessHoursOpen(false)} className="rounded-full px-6">
+                    Save
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            {/* US Holidays */}
+            <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                <Label className="text-sm font-medium text-muted-foreground">US Holidays</Label>
+              </div>
+              <p className="text-xs text-muted-foreground mb-5">
+                Select the holidays you observe. Bookings will automatically be blocked on these dates.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {HOLIDAYS.map(({ key, label, date }) => {
+                  const observed = observedHolidays[key]
+                  return (
+                    <label
+                      key={key}
+                      className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all duration-200 ${
+                        observed
+                          ? "border-primary/40 bg-primary/[0.03]"
+                          : "border-border/60 bg-background/50 hover:border-primary/20"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={observed}
+                        onChange={(e) =>
+                          setObservedHolidays((prev) => ({ ...prev, [key]: e.target.checked }))
+                        }
+                        className="rounded border-border"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{label}</p>
+                        <p className="text-xs text-muted-foreground">{date}</p>
+                      </div>
+                    </label>
+                  )
+                })}
+              </div>
+              <p className="flex items-start gap-1.5 text-xs text-muted-foreground mt-4">
+                <Info className="h-3.5 w-3.5 shrink-0 mt-px" />
+                This change will only take effect on your SERV booking calendar.
+              </p>
+            </div>
+
+            {/* Blocked Business Days */}
+            <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <CalendarX className="h-4 w-4 text-muted-foreground" />
+                <Label className="text-sm font-medium text-muted-foreground">Blocked Business Days</Label>
+              </div>
+              <p className="text-xs text-muted-foreground mb-5">
+                Add specific dates when your business will be closed (vacations, company events, etc.).
+              </p>
+              <div className="flex items-center gap-2 mb-4">
                 <Input
                   type="date"
                   value={newBlockedDate}
                   onChange={(e) => setNewBlockedDate(e.target.value)}
-                  className="h-11 rounded-xl text-base"
+                  className="h-11 rounded-xl text-base flex-1"
                 />
                 <Button
                   type="button"
                   onClick={addBlockedDate}
                   variant="outline"
+                  disabled={!newBlockedDate}
                   className="h-11 rounded-xl px-4 border border-border bg-transparent"
                 >
                   <Plus className="h-4 w-4 mr-1" />
@@ -551,7 +772,7 @@ export default function OnboardingPage() {
                 </Button>
               </div>
 
-              {blockedDates.length > 0 && (
+              {blockedDates.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {blockedDates.map((d) => (
                     <span
@@ -570,7 +791,13 @@ export default function OnboardingPage() {
                     </span>
                   ))}
                 </div>
+              ) : (
+                <p className="text-xs text-muted-foreground italic">No blocked days added yet.</p>
               )}
+              <p className="flex items-start gap-1.5 text-xs text-muted-foreground mt-4">
+                <Info className="h-3.5 w-3.5 shrink-0 mt-px" />
+                This change will only take effect on your SERV booking calendar.
+              </p>
             </div>
 
             <PrimaryButton onClick={handleNext}>Continue</PrimaryButton>

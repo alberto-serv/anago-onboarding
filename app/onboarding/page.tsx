@@ -41,7 +41,6 @@ import {
   X,
   Pencil,
   SlidersHorizontal,
-  Info,
   ExternalLink,
 } from "lucide-react"
 import { PreviewSection } from "./preview-section"
@@ -146,8 +145,6 @@ export default function OnboardingPage() {
     saturday: { enabled: false, start: "09:00", end: "14:00" },
     sunday: { enabled: false, start: "09:00", end: "14:00" },
   })
-  const [includeScheduling, setIncludeScheduling] = useState(true)
-  const [liveBookings, setLiveBookings] = useState(false)
   // Team members who receive calendar invites for booked jobs.
   const [teamEmails, setTeamEmails] = useState<string[]>([])
   const [newTeamEmail, setNewTeamEmail] = useState("")
@@ -596,18 +593,6 @@ export default function OnboardingPage() {
               )}
             </div>
 
-            {/* Scheduling options */}
-            <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">Include scheduling</p>
-                <Switch checked={includeScheduling} onCheckedChange={setIncludeScheduling} />
-              </div>
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">Switch to live bookings</p>
-                <Switch checked={liveBookings} onCheckedChange={setLiveBookings} />
-              </div>
-            </div>
-
             {/* Availability */}
             <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
               <div className="flex items-center gap-2">
@@ -823,10 +808,6 @@ export default function OnboardingPage() {
                   )
                 })}
               </div>
-              <p className="flex items-start gap-1.5 text-xs text-muted-foreground mt-4">
-                <Info className="h-3.5 w-3.5 shrink-0 mt-px" />
-                This change will only take effect on your SERV booking calendar.
-              </p>
             </div>
 
             {/* Blocked Business Days */}
@@ -879,10 +860,6 @@ export default function OnboardingPage() {
               ) : (
                 <p className="text-xs text-muted-foreground italic">No blocked days added yet.</p>
               )}
-              <p className="flex items-start gap-1.5 text-xs text-muted-foreground mt-4">
-                <Info className="h-3.5 w-3.5 shrink-0 mt-px" />
-                This change will only take effect on your SERV booking calendar.
-              </p>
             </div>
 
             <PrimaryButton onClick={handleNext}>Continue</PrimaryButton>
